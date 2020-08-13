@@ -23,6 +23,12 @@ To install `DiscourseSsoConsumer`:
    ```php
    wfLoadExtension( 'DiscourseSsoConsumer' );
    ```
+ * Run `update.php` so that a new table is added to your site's database:
+   ```
+   cd YOUR-WIKI-INSTALL-DIRECTORY
+   cd maintenance
+   php update.php
+   ```
 
 Aside from the `PluggableAuth` extension (and working MediaWiki and
 Discourse sites), `DiscourseSsoConsumer` has no other dependencies.
