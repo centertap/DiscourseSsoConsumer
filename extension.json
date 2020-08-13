@@ -1,0 +1,61 @@
+{
+    "name": "Discourse SSO Consumer",
+    "version": "1.0",
+    "author": [ "Matt Marjanovic" ],
+    "url": "https://github.com/mdoggydog/DiscourseSsoConsumer",
+    "descriptionmsg": "discourse-sso-consumer-desc",
+    "type": "other",
+    "license-name":  "GPL-2.0-or-later",
+    "requires": {
+        "MediaWiki": ">= 1.31.0",
+        "extensions": {
+            "PluggableAuth": ">= 4.0"
+        }
+    },
+    "MessagesDirs": {
+        "DiscourseSsoConsumer": [
+            "i18n"
+        ]
+    },
+    "AutoloadNamespaces": {
+        "MediaWiki\\Extension\\DiscourseSsoConsumer\\": "src/"
+    },
+    "Hooks": {
+        "LoadExtensionSchemaUpdates": "MediaWiki\\Extension\\DiscourseSsoConsumer\\DiscourseSsoConsumer::onLoadExtensionSchemaUpdates",
+        "PluggableAuthPopulateGroups": "MediaWiki\\Extension\\DiscourseSsoConsumer\\DiscourseSsoConsumer::onPluggableAuthPopulateGroups"
+    },
+    "config": {
+        "DiscourseSsoConsumer_SsoProviderUrl": {
+            "value": null,
+            "description": "URL of the SSO provider endpoint of the Discourse server, typically of the form 'https://discourse-server.example.org/session/sso_provider'"
+        },
+        "DiscourseSsoConsumer_SharedSecret": {
+            "value": null,
+            "description": "Secret shared with the Discourse server (via its 'sso provider secrets' setting)"
+        },
+        "DiscourseSsoConsumer_LinkExistingBy": {
+            "value": [ ],
+            "description": "Array of zero or more of instances of 'email' and/or 'username' in any order, to specify how to link a seen-for-the-first-time Discourse credentials to an existing Mediawiki account.  The 'email' method will attempt to link via email address.  The 'username' will attempt to link via canonicalized username.  Methods will be attempted in the order specified.  If no method succeeds in matching (or if no methods are specified), a new Mediawiki account will be created. "
+        },
+        "DiscourseSsoConsumer_ExposeName": {
+            "value": false,
+            "description": "If true, user's local realname will be updated from Discourse name; if false, local realname will be set to empty string."
+        },
+        "DiscourseSsoConsumer_ExposeEmail": {
+            "value": false,
+            "description": "If true, user's local email address will be updated from Discourse email address; if false, local email will be set to empty string."
+        },
+        "DiscourseSsoConsumer_GroupMaps": {
+            "value": null,
+            "description": "If non-null, an array specifying which local Mediawiki group memberships should be derived from Discourse credentials.  Membership in the specified groups will be toggled according to the credentials on each login; groups which are not mentioned here will not be touched.  Each element of the array should be of the form 'local-group' => [ 'discourse-group-1', 'discourse-group-2', ...].  Two special tokens '@ADMIN@' and '@MODERATOR@' can be used to represent the is_admin and is_moderator flags in the SSO credentials."
+        },
+        "DiscourseSsoConsumer_LogoutDiscourse": {
+            "value": false,
+            "description": "If true, logging out of MediaWiki will also cause logging out of Discourse."
+        },
+        "PluggableAuth_Class": {
+            "value": "MediaWiki\\Extension\\DiscourseSsoConsumer\\DiscourseSsoConsumer"
+        }
+    },
+    "manifest_version": 2
+}

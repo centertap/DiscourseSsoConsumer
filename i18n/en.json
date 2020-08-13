@@ -1,0 +1,6 @@
+{
+  "@metadata": {
+    "authors": [ "Matt Marjanovic" ]
+  },
+  "discourse-sso-consumer-desc": "Provides authentication (as a PluggableAuth plug-in) via the SSO Provider API of a Discourse discussion forum"
+}
