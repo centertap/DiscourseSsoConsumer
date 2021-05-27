@@ -149,8 +149,18 @@ class DiscourseSsoConsumer extends PluggableAuth {
       self::STATE_SESSION_KEY );
 
     $externalId = $state['sso_credentials']['external_id'];
-    self::insist( $localId === $state['local_info']['id'] );
     self::insist( $externalId > 0 );
+
+    if ( !$state['local_info']['id'] ) {
+      // If the local id in $state is zero, that means that we did not have
+      // an id earlier in the process because a new user needed to be created.
+      // The id of the new user entry has now been provided to us in $localId,
+      // so we update our session state.
+      $state['local_info']['id'] = $localId;
+      $authManager->setAuthenticationSessionData(
+          self::STATE_SESSION_KEY, $state );
+    }
+    self::insist( $localId === $state['local_info']['id'] );
 
     self::updateIdLinkage( $externalId, $localId );
   }

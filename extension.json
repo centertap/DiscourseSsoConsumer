@@ -1,6 +1,6 @@
 {
     "name": "Discourse SSO Consumer",
-    "version": "1.0",
+    "version": "1.0.1",
     "author": [ "Matt Marjanovic" ],
     "url": "https://github.com/mdoggydog/DiscourseSsoConsumer",
     "descriptionmsg": "discourse-sso-consumer-desc",
