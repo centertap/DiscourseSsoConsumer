@@ -38,8 +38,8 @@ Discourse sites), `DiscourseSsoConsumer` has no other dependencies.
 The complete set of configuration parameters is listed below.  At a
 minimum, you will need to set the `SsoProviderUrl` and `SharedSecret`
 parameters, in concert with the Discourse site.  (On the Discourse site,
-you will need to set `enable sso provider` and `sso provider secrets` under
-`Admin -> Settings -> Login`.)
+you will need to set `enable discourse connect provider` and `discourse
+connect provider secrets` under `Admin -> Settings -> Login`.)
 
 As mentioned in the `PluggableAuth` documentation, you will likely want to
 configure the MediaWiki permissions to allow extensions to automatically
@@ -72,7 +72,7 @@ in particular:
  * `$wgDiscourseSsoConsumer_SharedSecret`
    * *mandatory string - no default value*
    * Specifies the secret shared with the Discourse server, via its
-     `sso provider secrets` setting.
+     `discourse connect provider secrets` setting.
 
  * `$wgDiscourseSsoConsumer_LinkExistingBy`
    * default value: `[ ]` (empty array)
