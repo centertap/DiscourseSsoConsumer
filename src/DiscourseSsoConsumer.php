@@ -584,13 +584,16 @@ class DiscourseSsoConsumer extends PluggableAuth {
     $parsed = [];
     parse_str( $decoded, $parsed );
 
+    // NB: 'name' can be missing from the response if it was never set
+    // in Discourse; e.g., this can happen for Discourse users created
+    // by import from another forum.
     $response = [
       'nonce' => $parsed['nonce'],
       'return_sso_url' => $parsed['return_sso_url'],
       'credentials' => [
         'external_id' => (int)$parsed['external_id'],
         'username' => $parsed['username'],
-        'name' => $parsed['name'],
+        'name' => $parsed['name'] ?? '',
         'email' => $parsed['email'],
         'groups' => explode( ',', $parsed['groups'] ),
         'is_admin' => ( $parsed['admin'] === 'true' ) ? true : false,
