@@ -31,7 +31,7 @@
         },
         "DiscourseSsoConsumer_SharedSecret": {
             "value": null,
-            "description": "Secret shared with the Discourse server (via its 'sso provider secrets' setting)"
+            "description": "Secret shared with the Discourse server (via its 'discourse connect provider secrets' setting)"
         },
         "DiscourseSsoConsumer_LinkExistingBy": {
             "value": [ ],
