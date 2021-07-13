@@ -164,6 +164,8 @@ in particular:
  - Bug fix:  correctly handle the delayed provision of a new user id when a
    new user is (auto)created in Mediawiki in response to authenticating a
    previously unseen Discourse user.
+### Version 1.0.2
+ - Bug fix:  handle Discourse SSO credentials that do not provide a (real)name.
 
 ## Known Bugs
 See `TODO` comments in the source code.
