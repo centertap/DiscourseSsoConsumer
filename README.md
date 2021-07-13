@@ -110,9 +110,9 @@ in particular:
    * default value: `false`
    * Specifies whether or not a user's email address will be exposed to
      MediaWiki.  The privacy controls of Discourse and MediaWiki are
-     different and difficult to harmonize.  If names are not completely
-     public in the Discourse site policy, it is probably best not to
-     expose them to MediaWiki at all.
+     different and difficult to harmonize.  If email addresses are not
+     completely public in the Discourse site policy, it is probably best
+     not to expose them to MediaWiki at all.
 
      This setting affects the email address reported to `PluggableAuth`,
      which will by default update the email address of the account.  If
