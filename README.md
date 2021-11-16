@@ -62,6 +62,10 @@ in particular:
  * `$wgPluggableAuth_ButtonLabelMessage`
  * `$wgPluggableAuth_ButtonLabel`
 
+You may also want to adjust `$wgObjectCacheSessionExpiry`, which controls
+how long it takes for an inactive user to be automatically logged out.
+See `$wgDiscourseSsoConsumer_AutoRelogin` below for more details.
+
 ### Configuration Parameters
 
  * `$wgDiscourseSsoConsumer_SsoProviderUrl`
@@ -158,6 +162,36 @@ in particular:
    * If `true`, logging out of MediaWiki will also log the user out of
      Discourse (via a redirect to the SSO endpoint, requesting logout).
 
+ * `$wgDiscourseSsoConsumer_AutoRelogin`
+   * default value: `false`
+   * If `true`, automatically re-login a previously-logged-in user if they
+     become logged out due to, e.g., session timeout.
+   * The purpose of this option is to provide a user experience more similar
+     to Discourse itself, i.e., as long as the user is logged-in to Discourse,
+     they will stay logged-in to Mediawiki.  Without this enabled, the user
+     will be silently logged out of Mediawiki after a period of inactivity
+     when their current session times out (by default, after one hour,
+     as set by `$wgObjectCacheSessionExpiry`).
+   * If you enable this option, you will probably want to _disable_
+     `$wgPluggableAuth_EnableLocalLogin`, otherwise users will have to
+     see the `Userlogin` interstitial page, and click through to
+     Discourse SSO, every time a relogin occurs.
+   * This option is different from `$wgPluggableAuth_EnableAutoLogin`.
+
+     `PluggableAuth`'s `EnableAutoLogin`:
+       * will always redirect unregistered users to the login flow;
+       * will disable the user's `Log out` button;
+       * will prevent anonymous access to the wiki.
+
+     `DiscourseSsoConsumer`'s `AutoRelogin`:
+       * will only redirect a previously logged-in user to the login flow;
+       * will not disable logout (and will not try to re-login after a user
+         does explicitly logout);
+       * will not prevent anonymous access to the wiki.
+
+      There is no point in having both modes enabled at the same time.
+      Choose one or the other (or neither).
+
 ## Release Notes
 ### Version 1.0
  - Initial version
@@ -167,6 +201,9 @@ in particular:
    previously unseen Discourse user.
 ### Version 1.0.2
  - Bug fix:  handle Discourse SSO credentials that do not provide a (real)name.
+### Version 1.1.0
+ - Feature:  new "Auto Re-login" feature, controlled by new
+   `$wgDiscourseSsoConsumer_AutoRelogin` config parameter.
 
 ## Known Bugs
 See `TODO` comments in the source code.

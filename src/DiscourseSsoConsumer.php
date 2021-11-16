@@ -30,6 +30,7 @@ namespace MediaWiki\Extension\DiscourseSsoConsumer;
 
 use DatabaseUpdater;
 use Exception;
+use ExtensionRegistry;
 use GlobalVarConfig;
 use MediaWiki\Auth\AuthManager;
 use MWException;
@@ -61,6 +62,12 @@ class DiscourseSsoConsumer extends PluggableAuth {
    * Name of our extension table in the database
    */
   private const TABLE = 'discourse_sso_consumer';
+
+
+  /**
+   * Name of our cookie, for noting that a user has logged in with us
+   */
+  private const COOKIE = 'DiscourseSsoConsumer';
 
 
   /**
@@ -106,6 +113,11 @@ class DiscourseSsoConsumer extends PluggableAuth {
       // A little state machine:
       // TODO(maddog)  Need to either clear or ignore lingering 'credentials' state...
       if ( $state === null ) {
+        // Clear our success marker first.  If authentication fails (whether
+        // due to an error or due to user declining to complete authentication),
+        // we do not want the user stuck returning to Discourse to keep trying.
+        self::clearDssoCookie();
+        // Now, start talking to Discourse.
         $this->initiateAuthentication();
         // initiateAuthentication() should never return.
         self::unreachable();
@@ -119,6 +131,8 @@ class DiscourseSsoConsumer extends PluggableAuth {
         $realname = $localInfo['realname'];
         $email = $localInfo['email'];
         $errorMessage = null;
+        // Since authentication a success, remember that we did it.
+        self::setDssoCookie();
         return true;
       }
       // Else... something has gone wrong.
@@ -175,6 +189,11 @@ class DiscourseSsoConsumer extends PluggableAuth {
    * @param User &$user
    */
   public function deauthenticate( User &$user ) {
+
+    // The user is explicitly logging out; clear our success cookie so that
+    // we will not automatically try to reauthenticate to Discourse.
+    self::clearDssoCookie();
+
     $logoutDiscourse = $this->config->get( 'LogoutDiscourse' );
     if ( !$logoutDiscourse ) {
       return;
@@ -204,6 +223,72 @@ class DiscourseSsoConsumer extends PluggableAuth {
     $this->redirectToSsoEndpointAndExit( self::generateRandomNonce(),
                                          $returnAddress,
                                          true /*isLogout*/ );
+  }
+
+
+  /**
+   * Implement BeforeInitialize hook.
+   *
+   * Following the example of PluggableAuth's use of this hook for its
+   * own 'EnableAutoLogin' feature, we use this hook to implement our
+   * 'AutoRelogin' feature.  Very early in page processing, we check
+   * if the user needs to reauthenticate via DiscourseSSO (e.g., because
+   * their MW session expired).
+   *
+   * @param Title $title
+   * @param Null $unused
+   * @param OutputPage $out
+   * @param User $user
+   * @param WebRequest $request
+   * @param MediaWiki $mw
+   *
+   * @return void  This method does not return a value, and may not return
+   *               at all in case it redirects to the login flow.
+  */
+  public static function onBeforeInitialize(
+      $title, $unused, $out, $user, $request, $mw ) {
+
+    // If "Auto Re-Login" is not enabled, nothing to do here.
+    $config = new GlobalVarConfig( self::CONFIG_PREFIX );
+    $autoRelogin = $config->get( 'AutoRelogin' );
+    if ( !$autoRelogin ) {
+      return;
+    }
+
+    // Bail if the user is still logged in.
+    if ( !$out->getUser()->isAnon() ) {
+      wfDebugLog( self::LOG_GROUP,
+                  "Skip auto re-login: user still logged in." );
+      return;
+    }
+    // Bail if there is no incoming DSSO cookie --- which implies that
+    // the user had explicitly logged out, or that no user had ever logged in
+    // via DSSO.
+    if ( $request->getCookie( self::COOKIE ) === null ) {
+      wfDebugLog( self::LOG_GROUP,
+                  "Skip auto re-login: user hadn't been logged in." );
+      return;
+    }
+    // Bail if this page request is already in the login flow.
+    $loginPages = ExtensionRegistry::getInstance()->getAttribute(
+        'PluggableAuthLoginSpecialPages' );
+    foreach ( $loginPages as $page ) {
+      if ( $title->isSpecial( $page ) ) {
+        wfDebugLog( self::LOG_GROUP,
+                    "Skip auto re-login:  already busy logging in." );
+        return;
+      }
+    }
+
+    // Still here?  Ok, redirect to the login/authentication flow.
+    wfDebugLog( self::LOG_GROUP, "Auto re-login:  going to reauthenticate..." );
+    $originalTitle = $title;
+    $redirectUrl = SpecialPage::getTitleFor( 'Userlogin' )->getFullURL( [
+        'returnto' => $originalTitle,
+        'returntoquery' => $request->getRawQueryString()
+                                                                         ] );
+    header( 'Location: ' . $redirectUrl );
+    exit( 0 );
   }
 
 
@@ -286,6 +371,31 @@ class DiscourseSsoConsumer extends PluggableAuth {
     $updater->addExtensionTable(
       self::TABLE,
       __DIR__ . '/../sql/' . $type . '/add_table.sql' );
+  }
+
+
+  /**
+   * Set our own cookie, to indicate successful authentication via DSSO.
+   *
+   * The value of the cookie is irrelevant; only its presence matters.
+   * MW's defaults for cookie parameters should be sufficient.
+   *
+   * @return void This function returns no value.
+   */
+  private static function setDssoCookie(): void {
+    $response = RequestContext::getMain()->getRequest()->response();
+    $response->setCookie( self::COOKIE, "BarneyCollier" );
+  }
+
+
+  /**
+   * Clear our own cookie.
+   *
+   * @return void This function returns no value.
+   */
+  private static function clearDssoCookie(): void {
+    $response = RequestContext::getMain()->getRequest()->response();
+    $response->clearCookie( self::COOKIE );
   }
 
 

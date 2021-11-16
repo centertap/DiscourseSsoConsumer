@@ -1,6 +1,6 @@
 {
     "name": "Discourse SSO Consumer",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "author": [ "Matt Marjanovic" ],
     "url": "https://github.com/mdoggydog/DiscourseSsoConsumer",
     "descriptionmsg": "discourse-sso-consumer-desc",
@@ -21,6 +21,7 @@
         "MediaWiki\\Extension\\DiscourseSsoConsumer\\": "src/"
     },
     "Hooks": {
+        "BeforeInitialize": "MediaWiki\\Extension\\DiscourseSsoConsumer\\DiscourseSsoConsumer::onBeforeInitialize",
         "LoadExtensionSchemaUpdates": "MediaWiki\\Extension\\DiscourseSsoConsumer\\DiscourseSsoConsumer::onLoadExtensionSchemaUpdates",
         "PluggableAuthPopulateGroups": "MediaWiki\\Extension\\DiscourseSsoConsumer\\DiscourseSsoConsumer::onPluggableAuthPopulateGroups"
     },
@@ -52,6 +53,10 @@
         "DiscourseSsoConsumer_LogoutDiscourse": {
             "value": false,
             "description": "If true, logging out of MediaWiki will also cause logging out of Discourse."
+        },
+        "DiscourseSsoConsumer_AutoRelogin": {
+            "value": false,
+            "description": "If true, automatically reauthenticate a user if their session has expired."
         },
         "PluggableAuth_Class": {
             "value": "MediaWiki\\Extension\\DiscourseSsoConsumer\\DiscourseSsoConsumer"
