@@ -60,6 +60,7 @@ in particular:
  * `$wgPluggableAuth_EnableLocalLogin`
  * `$wgPluggableAuth_EnableLocalProperties`
  * `$wgPluggableAuth_ButtonLabelMessage`
+ * `$wgPluggableAuth_ButtonLabel`
 
 ### Configuration Parameters
 
@@ -161,7 +162,7 @@ in particular:
 ### Version 1.0
  - Initial version
 ### Version 1.0.1
- - Bug fix:  correctly handle the delayed provision of a new user id when a
+ - Bug fix:  correctly handle the delayed provisioning of a new user id when a
    new user is (auto)created in Mediawiki in response to authenticating a
    previously unseen Discourse user.
 ### Version 1.0.2
