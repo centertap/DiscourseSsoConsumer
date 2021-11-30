@@ -52,7 +52,7 @@ dependencies, e.g.,
    wfLoadExtension( 'DiscourseSsoConsumer' );
    ...
    ```
- * Run `update.php` so that a new table is added to your site's database:
+ * Run `update.php` to add this extension's tables to your wiki's database:
    ```
    $ cd YOUR-WIKI-INSTALL-DIRECTORY
    $ cd maintenance

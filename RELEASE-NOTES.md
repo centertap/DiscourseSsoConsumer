@@ -1,6 +1,16 @@
 # Release Notes
 
 ## Version devel
+***Upgrading***
+ - This major release introduces database schema changes:
+   - _Make a backup of your database._
+   - Run MW's `maintenance/update.php` after upgrading to this release;
+   - Do not expect to be able to downgrade to the previous major release.
+
+**Features**
+   - Set up a framework for managing this extension's database schema,
+     to clearly track versions and implement updates.
+
 **Fixes**
    - Move growing release notes out of README.md and into this separate file.
    - Add a missing `new` (when throwing an exception).

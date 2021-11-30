@@ -1,6 +1,6 @@
 -- This file is part of DiscourseSsoConsumer.
 --
--- Copyright 2020 Matt Marjanovic
+-- Copyright 2021 Matt Marjanovic
 --
 -- DiscourseSsoConsumer is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as published
@@ -15,9 +15,23 @@
 -- You should have received a copy of the GNU General Public License along
 -- with DiscourseSsoConsumer.  If not, see <https://www.gnu.org/licenses/>.
 
--- The purpose of this table is to link user-ids from the Discourse SSO
--- service (external_id) to user-ids in the MediaWiki instance (local_id).
+
+-- Metadata table, to explicitly track the status of the schema/DDL itself.
+CREATE TABLE /*_*/discourse_sso_consumer_meta (
+  m_key VARCHAR(255) NOT NULL,
+  m_value TEXT NOT NULL,
+  PRIMARY KEY(m_key)
+) /*$wgDBTableOptions*/;
+
+
+-- Link table, to link user-ids from the Discourse SSO service (external_id)
+-- to user-ids in the MediaWiki instance (local_id).
 CREATE TABLE /*_*/discourse_sso_consumer (
-  external_id INTEGER NOT NULL PRIMARY KEY,
-  local_id INTEGER NOT NULL
-);
+  external_id INTEGER NOT NULL,
+  local_id INTEGER NOT NULL,
+  PRIMARY KEY(external_id)
+) /*$wgDBTableOptions*/;
+
+
+INSERT INTO /*_*/discourse_sso_consumer_meta (m_key, m_value)
+  VALUES('schemaVersion', '1');
