@@ -1,4 +1,39 @@
 {
+  "name": "centertap/discourse-sso-consumer",
+  "type": "mediawiki-extension",
+  "description": "Mediawiki extension that provides authentication (as a PluggableAuth plug-in) via the DiscourseConnect (SSO) Provider API of a Discourse discussion forum",
+  "keywords": [
+    "mediawiki",
+    "discourse",
+    "sso"
+  ],
+  "homepage": "https://github.com/centertap/DiscourseSsoConsumer",
+  "readme": "README.md",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "Matt Marjanovic",
+      "email": "maddog@mir.com",
+      "role": "Creator"
+    },
+    {
+      "name": "Center for Transparent Analysis and Policy",
+      "email": "dothemath@centertap.org",
+      "homepage": "https://www.centertap.org/",
+      "role": "Maintainer"
+    }
+  ],
+  "funding": [
+    {
+      "type": "Donate to CTAP",
+      "url": "https://www.centertap.org/how"
+    }
+  ],
+  "require": {
+    "php": ">=7.4",
+    "composer/installers": "^1.0.1",
+    "mediawiki/pluggable-auth": "~5.7"
+  },
   "require-dev": {
     "php-parallel-lint/php-parallel-lint": ">=1.0.0",
     "php-parallel-lint/php-console-highlighter": ">=0.3.2",
@@ -7,15 +42,12 @@
   },
   "scripts": {
     "test": [
-      "parallel-lint . --exclude vendor --exclude node_modules",
+      "parallel-lint . --exclude vendor",
       "phpcs -p -s",
       "minus-x check ."
     ],
     "fix": [
-      "minus-x fix .",
-      "phpcbf"
+      "minus-x fix ."
     ]
-  },
-  "require": {
   }
 }

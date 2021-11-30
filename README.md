@@ -11,27 +11,41 @@ extension.
 
 ## Installation
 
-First, install the
-[`PluggableAuth`](https://www.mediawiki.org/wiki/Extension:PluggableAuth)
-extension.  (See some configuration hints/suggestions below.)
+The recommended installation method is to use
+[`composer`](https://getcomposer.org/).  This will automatically install any
+dependencies, e.g.,
+[`PluggableAuth`](https://www.mediawiki.org/wiki/Extension:PluggableAuth).
 
-To install `DiscourseSsoConsumer`:
+ > You can install this extension by hand (e.g., `git clone` this repository
+ > into your site's `extensions/` directory), but then you will have to
+ > manage its dependencies by hand as well.
 
- * Copy (e.g., `git clone`) this entire `DiscourseSsoConsumer` directory
-   to your site's `extensions/` directory.
- * Add a load-extension directive to your site's `LocalSettings.php`:
+ * Go to your MediaWiki installation directory and run two `composer` commands:
+   ```
+   $ cd YOUR-WIKI-INSTALL-DIRECTORY
+   $ COMPOSER=composer.local.json composer require --no-update centertap/discourse-sso-consumer
+   $ composer update centertap/discourse-sso-consumer --no-dev --optimize-autoloader
+   ```
+   If you want to pin the major version of this extension (so that future
+   updates do not inadvertently introduce breaking changes), change the first
+   command to something like this (e.g., for major revision "194":
+   ```
+   $ COMPOSER=composer.local.json composer require --no-update centertap/discourse-sso-consumer:^194.0.0
+   ```
+ * Edit your site's `LocalSettings.php` to load the extension(s):
    ```php
+   ...
+   wfLoadExtension( 'PluggableAuth' );
    wfLoadExtension( 'DiscourseSsoConsumer' );
+   ...
    ```
  * Run `update.php` so that a new table is added to your site's database:
    ```
-   cd YOUR-WIKI-INSTALL-DIRECTORY
-   cd maintenance
-   php update.php
+   $ cd YOUR-WIKI-INSTALL-DIRECTORY
+   $ cd maintenance
+   $ php update.php
    ```
-
-Aside from the `PluggableAuth` extension (and working MediaWiki and
-Discourse sites), `DiscourseSsoConsumer` has no other dependencies.
+ * Configure the extension(s).  (See below.)
 
 ## Configuration
 
