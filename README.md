@@ -9,6 +9,19 @@ The `DiscourseSsoConsumer` extension is itself a plugin for MediaWiki's
 [`PluggableAuth`](https://www.mediawiki.org/wiki/Extension:PluggableAuth)
 extension.
 
+---
+
+**Brought to you by...** [![CTAP](images/CTAP-powered-by-132x47.png)](https://www.centertap.org/)
+
+This extension is developed by the
+[Center for Transparent Analysis and Policy](https://www.centertap.org/),
+a 501(c)(3) non-profit organization.  If this extension is useful
+for your wiki, consider making a
+[donation to support CTAP](https://www.centertap.org/how).
+You can be a provider for Discourse SSO Consumer!
+
+---
+
 ## Installation
 
 The recommended installation method is to use
