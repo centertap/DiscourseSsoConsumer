@@ -218,6 +218,10 @@ See `$wgDiscourseSsoConsumer_AutoRelogin` below for more details.
 ### Version 1.1.0
  - Feature:  new "Auto Re-login" feature, controlled by new
    `$wgDiscourseSsoConsumer_AutoRelogin` config parameter.
+### Version 1.2.0
+ - Feature:  With a proper `composer.json` file, this extension can now be
+   installed with `composer`.
+ - Fix:  Stop distributing the cruft `composer.lock` file that no one needs.
 
 ## Known Bugs
 See `TODO` comments in the source code.
