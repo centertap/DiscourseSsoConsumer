@@ -3,6 +3,7 @@
 ## Version devel
 **Fixes**
    - Move growing release notes out of README.md and into this separate file.
+   - Add a missing `new` (when throwing an exception).
 ---
 
 ## Version 1.2.0

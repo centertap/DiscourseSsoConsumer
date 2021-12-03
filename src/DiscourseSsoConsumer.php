@@ -872,7 +872,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
     $username = $originalUsername;
     while ( User::idFromName( $username ) !== null ) {
       if ( $suffix > 1000 ) {
-        throw MWException(
+        throw new MWException(
           "Failed to find fresh username for '{$originalUsername}'" .
           " after {$suffix} tries." );
       }
