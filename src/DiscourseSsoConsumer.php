@@ -58,7 +58,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
   /**
    * Version of our schema required by this code
    */
-  private const SCHEMA_VERSION = 2;
+  private const SCHEMA_VERSION = 3;
 
   /**
    * Name of our metadata table in the database
@@ -409,8 +409,8 @@ class DiscourseSsoConsumer extends PluggableAuth {
 
     if ( $dbSchemaVersion === null ) {
       // Blank slate:  install latest schema from scratch.
-      self::insist( self::SCHEMA_VERSION === 2 );
-      self::installSchemaVnnnn( 'v0002', $updater );
+      self::insist( self::SCHEMA_VERSION === 3 );
+      self::installSchemaVnnnn( 'v0003', $updater );
 
     } elseif ( $dbSchemaVersion === self::SCHEMA_VERSION ) {
       // Nothing to do; we are already up-to-date.
@@ -431,6 +431,8 @@ class DiscourseSsoConsumer extends PluggableAuth {
           self::applySchemaPatchVnnnn( 'v0001', $updater );
         case 1:
           self::applySchemaPatchVnnnn( 'v0002', $updater );
+        case 2:
+          self::applySchemaPatchVnnnn( 'v0003', $updater );
           break;
         default:
           self::unreachable();
@@ -777,6 +779,10 @@ class DiscourseSsoConsumer extends PluggableAuth {
         $localInfo['id'] = $found->local_id;
         $localInfo['username'] = $found->local_username;
 
+        // TODO(maddog) Our schema prevents the possibility of two Discourse
+        //              users becoming linked to the same MW user, via a
+        //              uniqueness constraint, but should we try to discover
+        //              this case before calling updateIdLinkage()?
         self::updateIdLinkage( $externalId, $found->local_id );
 
         // $method has succeeded, so don't try any more methods.
@@ -959,11 +965,9 @@ class DiscourseSsoConsumer extends PluggableAuth {
       wfDebugLog( self::LOG_GROUP, 'Email address is empty string, skipping.' );
       return null;
     }
-    // TODO(maddog) Nothing here or in our schema prevents the possibility of
-    //              two Discourse users becoming linked to the same MW user.
-    //              Is this a problem?
     // TODO(maddog) What happens (and what should happen) if the email address
-    //              is used by multiple local users?
+    //              is used by multiple local users?  (e.g., selectRow() is
+    //              here returning only one of potentially multiple rows.)
     $dbr = wfGetDB( DB_REPLICA );
     $row = $dbr->selectRow(
       // tables
@@ -1005,9 +1009,6 @@ class DiscourseSsoConsumer extends PluggableAuth {
       wfDebugLog( self::LOG_GROUP, 'Username is empty string, skipping.' );
       return null;
     }
-    // TODO(maddog) Nothing here or in our schema prevents the possibility of
-    //              two Discourse users becoming linked to the same MW user.
-    //              Is this a problem?
     $dbr = wfGetDB( DB_REPLICA );
     $row = $dbr->selectRow(
       // tables
@@ -1062,6 +1063,9 @@ class DiscourseSsoConsumer extends PluggableAuth {
 
 
   // TODO(maddog)  Document possible throws?
+  // TODO(maddog)  If this fails/throws due to a unique constraint violation,
+  //               it would be nice if callers could turn that into a
+  //               helpful error message.
   /**
    * Link a (Discourse) external id to a (MediaWiki) local id in the database.
    *

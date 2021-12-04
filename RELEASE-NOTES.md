@@ -10,6 +10,8 @@
 **Features**
    - Set up a framework for managing this extension's database schema,
      to clearly track versions and implement updates.
+   - Add a unique index/constraint to linkage table, to prevent multiple
+     Discourse user-id's becoming linked to a single Mediawiki user-id.
 
 **Fixes**
    - Move growing release notes out of README.md and into this separate file.
