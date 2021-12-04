@@ -220,23 +220,11 @@ See `$wgDiscourseSsoConsumer_AutoRelogin` below for more details.
       Choose one or the other (or neither).
 
 ## Release Notes
-### Version 1.0
- - Initial version
-### Version 1.0.1
- - Bug fix:  correctly handle the delayed provisioning of a new user id when a
-   new user is (auto)created in Mediawiki in response to authenticating a
-   previously unseen Discourse user.
-### Version 1.0.2
- - Bug fix:  handle Discourse SSO credentials that do not provide a (real)name.
-### Version 1.1.0
- - Feature:  new "Auto Re-login" feature, controlled by new
-   `$wgDiscourseSsoConsumer_AutoRelogin` config parameter.
-### Version 1.2.0
- - Feature:  With a proper `composer.json` file, this extension can now be
-   installed with `composer`.
- - Fix:  Stop distributing the cruft `composer.lock` file that no one needs.
+
+See [`RELEASE-NOTES.md`](RELEASE-NOTES.md).
 
 ## Known Bugs
+
 See `TODO` comments in the source code.
 
 ## License
