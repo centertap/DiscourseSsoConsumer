@@ -98,13 +98,14 @@ class DiscourseSsoConsumer extends PluggableAuth {
           self::SCHEMA_VERSION .
           ".  Did you forget to run 'maintenance/update.php'?" );
     }
-    // Ensure that required parameters have been configured.
-    if ( !$this->config->has( 'SsoProviderUrl' ) ) {
-      throw new MWException( self::CONFIG_PREFIX .
+    // Ensure that required parameters (those without default values) have
+    // been configured.  (Fail early on broken configuration.)
+    if ( $this->config->get( 'SsoProviderUrl' ) === null ) {
+      throw new MWException( '$' . self::CONFIG_PREFIX .
                              'SsoProviderUrl is not configured.' );
     }
-    if ( !$this->config->has( 'SharedSecret' ) ) {
-      throw new MWException( self::CONFIG_PREFIX .
+    if ( $this->config->get( 'SharedSecret' ) === null ) {
+      throw new MWException( '$' . self::CONFIG_PREFIX .
                              'SharedSecret is not configured.' );
     }
   }

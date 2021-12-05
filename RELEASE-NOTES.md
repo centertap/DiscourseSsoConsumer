@@ -31,6 +31,8 @@
    - Add a missing `new` (when throwing an exception).
    - Heed the deprecation warning about calling upsert() with an "old-style"
      `$uniqueKeys` parameter.
+   - Correctly check that required configuration parameters (those without
+     sensible default values) have been configured with values.
 ---
 
 ## Version 1.2.0
