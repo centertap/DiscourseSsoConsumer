@@ -63,7 +63,7 @@ dependencies, e.g.,
 ## Configuration
 
 The complete set of configuration parameters is listed below.  At a
-minimum, you will need to set the `SsoProviderUrl` and `SharedSecret`
+minimum, you will need to set the `DiscourseUrl` and `SsoSharedSecret`
 parameters, in concert with the Discourse site.  (On the Discourse site,
 you will need to set `enable discourse connect provider` and `discourse
 connect provider secrets` under `Admin -> Settings -> Login`.)
@@ -95,19 +95,23 @@ See `$wgDiscourseSsoConsumer_AutoRelogin` below for more details.
 
 ### Configuration Parameters
 
- * `$wgDiscourseSsoConsumer_SsoProviderUrl`
+ * `$wgDiscourseSsoConsumer_DiscourseUrl`
    * *mandatory string - no default value*
-   * Specifies the URL of the SSO provider endpoint of the Discourse server,
-     typically of the form
-     `https://DISCOURSE-SERVER.EXAMPLE.ORG/session/sso_provider`.
+   * Specifies the base URL of the Discourse server, typically of the form
+     `https://my-discourse-server.example.org` (no trailing slash).
 
- * `$wgDiscourseSsoConsumer_SharedSecret`
+ * `$wgDiscourseSsoConsumer_SsoProviderEndpoint`
+   * string, default value: `/session/sso_provider`
+   * Specifies the SSO provider endpoint of the Discourse server; a complete
+     URL will be constructed by prepending `DiscourseUrl`.
+
+ * `$wgDiscourseSsoConsumer_SsoSharedSecret`
    * *mandatory string - no default value*
    * Specifies the secret shared with the Discourse server, via its
      `discourse connect provider secrets` setting.
 
  * `$wgDiscourseSsoConsumer_LinkExistingBy`
-   * default value: `[ ]` (empty array)
+   * array, default value: `[ ]` (empty array)
    * Array of zero or more instances of `email` and/or `username` in
      any order, specifying how to link Discourse credentials to existing
      MediaWiki accounts.
@@ -119,10 +123,10 @@ See `$wgDiscourseSsoConsumer_AutoRelogin` below for more details.
      `LinkExistingBy`.  The `email` method will look for a matching email
      address.  The `username` will look for a matching canonicalized
      username.  If the list is exhausted without finding a match (or if no
-     methods are specified), a new Mediawiki account will be created.
+     methods are specified), a new MediaWiki account will be created.
 
  * `$wgDiscourseSsoConsumer_ExposeName`
-   * default value: `false`
+   * boolean, default value: `false`
    * Specifies whether or not a Discourse user's full name will be
      exposed to MediaWiki.  The privacy controls of Discourse and
      MediaWiki are different and difficult to harmonize.  If names are
@@ -139,7 +143,7 @@ See `$wgDiscourseSsoConsumer_AutoRelogin` below for more details.
      the local realname alone completely.
 
  * `$wgDiscourseSsoConsumer_ExposeEmail`
-   * default value: `false`
+   * boolean, default value: `false`
    * Specifies whether or not a user's email address will be exposed to
      MediaWiki.  The privacy controls of Discourse and MediaWiki are
      different and difficult to harmonize.  If email addresses are not
@@ -156,7 +160,7 @@ See `$wgDiscourseSsoConsumer_AutoRelogin` below for more details.
      the local email address alone completely.
 
  * `$wgDiscourseSsoConsumer_GroupMaps`
-   * *optional - no default value*
+   * array, *optional - no default value*
    * Specifies how MediaWiki group memberships should be derived from
      Discourse credentials.  If set, it should be an array of the form
 
@@ -184,19 +188,19 @@ See `$wgDiscourseSsoConsumer_AutoRelogin` below for more details.
      upon every login.  Membership in any other MediaWiki groups will not
      be affected.
 
- * `$wgDiscourseSsoConsumer_LogoutDiscourse`
+ * `$wgDiscourseSsoConsumer_EnableDiscourseLogout`
    * default value: `false`
    * If `true`, logging out of MediaWiki will also log the user out of
      Discourse (via a redirect to the SSO endpoint, requesting logout).
 
- * `$wgDiscourseSsoConsumer_AutoRelogin`
-   * default value: `false`
+ * `$wgDiscourseSsoConsumer_EnableAutoRelogin`
+   * boolean, default value: `false`
    * If `true`, automatically re-login a previously-logged-in user if they
      become logged out due to, e.g., session timeout.
    * The purpose of this option is to provide a user experience more similar
      to Discourse itself, i.e., as long as the user is logged-in to Discourse,
-     they will stay logged-in to Mediawiki.  Without this enabled, the user
-     will be silently logged out of Mediawiki after a period of inactivity
+     they will stay logged-in to MediaWiki.  Without this enabled, the user
+     will be silently logged out of MediaWiki after a period of inactivity
      when their current session times out (by default, after one hour,
      as set by `$wgObjectCacheSessionExpiry`).
    * If you enable this option, you will probably want to _disable_

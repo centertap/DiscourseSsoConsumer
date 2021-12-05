@@ -29,13 +29,25 @@
         "PluggableAuthPopulateGroups": "MediaWiki\\Extension\\DiscourseSsoConsumer\\DiscourseSsoConsumer::onPluggableAuthPopulateGroups"
     },
     "config": {
-        "DiscourseSsoConsumer_SsoProviderUrl": {
+        "DiscourseSsoConsumer_DiscourseUrl": {
             "value": null,
-            "description": "URL of the SSO provider endpoint of the Discourse server, typically of the form 'https://discourse-server.example.org/session/sso_provider'"
+            "description": "Base URL of the Discourse server, typically of the form 'https://my-discourse-server.example.org'"
         },
-        "DiscourseSsoConsumer_SharedSecret": {
+        "DiscourseSsoConsumer_SsoProviderEndpoint": {
+            "value": "/session/sso_provider",
+            "description": "SSO provider endpoint of the Discourse server; a complete URL will be constructed by prepending DiscourseUrl."
+        },
+        "DiscourseSsoConsumer_SsoSharedSecret": {
             "value": null,
             "description": "Secret shared with the Discourse server (via its 'discourse connect provider secrets' setting)"
+        },
+        "DiscourseSsoConsumer_EnableDiscourseLogout": {
+            "value": false,
+            "description": "If true, logging out of MediaWiki will also cause logging out of Discourse."
+        },
+        "DiscourseSsoConsumer_EnableAutoRelogin": {
+            "value": false,
+            "description": "If true, automatically reauthenticate a user if their session has expired."
         },
         "DiscourseSsoConsumer_LinkExistingBy": {
             "value": [ ],
@@ -52,14 +64,6 @@
         "DiscourseSsoConsumer_GroupMaps": {
             "value": null,
             "description": "If non-null, an array specifying which local Mediawiki group memberships should be derived from Discourse credentials.  Membership in the specified groups will be toggled according to the credentials on each login; groups which are not mentioned here will not be touched.  Each element of the array should be of the form 'local-group' => [ 'discourse-group-1', 'discourse-group-2', ...].  Two special tokens '@ADMIN@' and '@MODERATOR@' can be used to represent the is_admin and is_moderator flags in the SSO credentials."
-        },
-        "DiscourseSsoConsumer_LogoutDiscourse": {
-            "value": false,
-            "description": "If true, logging out of MediaWiki will also cause logging out of Discourse."
-        },
-        "DiscourseSsoConsumer_AutoRelogin": {
-            "value": false,
-            "description": "If true, automatically reauthenticate a user if their session has expired."
         },
         "PluggableAuth_Class": {
             "value": "MediaWiki\\Extension\\DiscourseSsoConsumer\\DiscourseSsoConsumer"

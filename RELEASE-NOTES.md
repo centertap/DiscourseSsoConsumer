@@ -11,20 +11,39 @@
    in the `composer.json` file back in Version 1.2.0, but now they are in
    `extension.json` as well.)
 
+ - This release introduces changes to the configuration parameters;
+   You will need to modify your `LocalSettings.php`.
+   (See [`README.md`](README.md) for configuration parameter details.)
+
+   | pre-2.0.0         |            | 2.0.0                  | default value                                   |
+   |-------------------|:----------:|------------------------|-------------------------------------------------|
+   | `SsoProviderUrl`  | split into | `DiscourseUrl` and     | *required (no default)*                         |
+   |                   |            | `SsoProviderEndpoint`  | `/session/sso_provider`                         |
+   | `SharedSecret`    | renamed    | `SsoSharedSecret`      | *required (no default)*                         |
+   | `AutoRelogin`     | renamed    | `EnableAutoRelogin`    | `false`                                         |
+   | `LogoutDiscourse` | renamed    | `EnableDiscourseLogout`| `false`                                         |
+   |                   | new        | `LogoutApiEndpoint`    | `/admin/users/{id}/log_out.json`                |
+   |                   | new        | `LogoutApiUsername`    | `system`                                        |
+   |                   | new        | `LogoutApiKey`         | *required if `EnableDiscourseLogout` is `true`* |
+
  - This release introduces database schema changes:
    - _Make a backup of your database._
-   - Run MW's `maintenance/update.php` after upgrading to this release;
+   - Run MediaWiki's `maintenance/update.php` after upgrading to this release.
    - Do not expect to be able to downgrade to the previous major release.
 
 **Features**
    - Set up a framework for managing this extension's database schema,
      to clearly track versions and implement updates.
    - Add a unique index/constraint to linkage table, to prevent multiple
-     Discourse user-id's becoming linked to a single Mediawiki user-id.
+     Discourse user-id's becoming linked to a single MediaWiki user-id.
    - Bump up prerequisites (uniformly):
      - Mediawiki >= 1.35
      - PHP >= 7.4
      - PluggableAuth extension >= 5.7
+   - Rename/reorganize some of the configuration parameters (see
+     ***Upgrading*** above).  One improvement:  only the base URL for the
+     Discourse server needs to be provided now; the location of the SSO
+     provider endpoint has a sensible default.
 
 **Fixes**
    - Move growing release notes out of README.md and into this separate file.
@@ -58,7 +77,7 @@
 ## Version 1.0.1
 **Fixes**
    - Correctly handle the delayed provisioning of a new user id when a
-     new user is (auto)created in Mediawiki in response to authenticating a
+     new user is (auto)created in MediaWiki in response to authenticating a
      previously unseen Discourse user.
 ---
 

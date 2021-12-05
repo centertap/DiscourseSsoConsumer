@@ -100,13 +100,13 @@ class DiscourseSsoConsumer extends PluggableAuth {
     }
     // Ensure that required parameters (those without default values) have
     // been configured.  (Fail early on broken configuration.)
-    if ( $this->config->get( 'SsoProviderUrl' ) === null ) {
+    if ( $this->config->get( 'DiscourseUrl' ) === null ) {
       throw new MWException( '$' . self::CONFIG_PREFIX .
-                             'SsoProviderUrl is not configured.' );
+                             'DiscourseUrl is not configured.' );
     }
-    if ( $this->config->get( 'SharedSecret' ) === null ) {
+    if ( $this->config->get( 'SsoSharedSecret' ) === null ) {
       throw new MWException( '$' . self::CONFIG_PREFIX .
-                             'SharedSecret is not configured.' );
+                             'SsoSharedSecret is not configured.' );
     }
   }
 
@@ -199,10 +199,11 @@ class DiscourseSsoConsumer extends PluggableAuth {
   }
 
 
+  // TODO maddog fix docstring
   /**
    * Implement PluggableAuth::deauthenticate() interface.
    *
-   * If LogoutDiscourse is enabled, a logout request will be sent to the
+   * If DiscourseLogout is enabled, a logout request will be sent to the
    * Discourse SSO Provider endpoint (and this function will *not* return).
    *
    * @param User &$user
@@ -213,8 +214,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
     // we will not automatically try to reauthenticate to Discourse.
     self::clearDssoCookie();
 
-    $logoutDiscourse = $this->config->get( 'LogoutDiscourse' );
-    if ( !$logoutDiscourse ) {
+    if ( !$this->config->get( 'EnableDiscourseLogout' ) ) {
       return;
     }
 
@@ -269,8 +269,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
 
     // If "Auto Re-Login" is not enabled, nothing to do here.
     $config = new GlobalVarConfig( self::CONFIG_PREFIX );
-    $autoRelogin = $config->get( 'AutoRelogin' );
-    if ( !$autoRelogin ) {
+    if ( !$config->get( 'EnableAutoRelogin' ) ) {
       return;
     }
 
@@ -643,13 +642,15 @@ class DiscourseSsoConsumer extends PluggableAuth {
 
     // Sign the payload with the shared-secret, and construct the parameters
     // for the SSO request URL.
-    $sharedSecret = $this->config->get( 'SharedSecret' );
+    $sharedSecret = $this->config->get( 'SsoSharedSecret' );
     $ssoParameters = [ 'sso' => $payload,
                        'sig' => hash_hmac( 'sha256',
                                            $payload, $sharedSecret ), ];
 
     // Redirect user's browser to Discourse.
-    $ssoProviderUrl = $this->config->get( 'SsoProviderUrl' );
+    $ssoProviderUrl =
+        $this->config->get( 'DiscourseUrl' ) .
+        $this->config->get( 'SsoProviderEndpoint' );
     wfDebugLog( self::LOG_GROUP,
                 "Redirecting to Discourse at '{$ssoProviderUrl}'." );
     self::redirectToUrlAndExit( $ssoProviderUrl, $ssoParameters );
@@ -832,7 +833,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
         'Missing sso or sig parameters in Discourse SSO response.' );
     }
 
-    $sharedSecret = $this->config->get( 'SharedSecret' );
+    $sharedSecret = $this->config->get( 'SsoSharedSecret' );
     if ( hash_hmac( 'sha256', $sso, $sharedSecret ) !== $sig ) {
       throw new MWException( 'sig does not match hashed sso payload.' );
     }
