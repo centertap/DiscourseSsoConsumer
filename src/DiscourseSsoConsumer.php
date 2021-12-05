@@ -108,6 +108,11 @@ class DiscourseSsoConsumer extends PluggableAuth {
       throw new MWException( '$' . self::CONFIG_PREFIX .
                              'SsoSharedSecret is not configured.' );
     }
+    if ( $this->config->get( 'EnableDiscourseLogout' ) &&
+         ( $this->config->get( 'LogoutApiKey' ) === null ) ) {
+      throw new MWException( '$' . self::CONFIG_PREFIX .
+                             'LogoutApiKey is not configured.' );
+    }
   }
 
 
@@ -199,49 +204,36 @@ class DiscourseSsoConsumer extends PluggableAuth {
   }
 
 
-  // TODO maddog fix docstring
   /**
    * Implement PluggableAuth::deauthenticate() interface.
    *
-   * If DiscourseLogout is enabled, a logout request will be sent to the
-   * Discourse SSO Provider endpoint (and this function will *not* return).
+   * If DiscourseLogout is enabled, a synchronous logout request will be
+   * sent to the Discourse log_out API endpoint.
    *
    * @param User &$user
    */
   public function deauthenticate( User &$user ) {
+    wfDebugLog( self::LOG_GROUP, 'deauthenticate()...' );
 
     // The user is explicitly logging out; clear our success cookie so that
     // we will not automatically try to reauthenticate to Discourse.
     self::clearDssoCookie();
 
-    if ( !$this->config->get( 'EnableDiscourseLogout' ) ) {
-      return;
-    }
-
-    wfDebugLog( self::LOG_GROUP, 'Propagating logout back to Discourse...' );
-    $returnAddress = null;
-    $request = RequestContext::getMain()->getRequest();
-    $returnTo = $request->getVal( 'returnto' );
-    if ( $returnTo !== null ) {
-      $title = Title::newFromText( $returnTo );
-      if ( $title !== null ) {
-        $returnAddress = $title->getFullURL();
+    if ( $this->config->get( 'EnableDiscourseLogout' ) ) {
+      $localId = $user->getId();
+      $externalId = $this->lookupExternalIdByLocalId( $localId );
+      if ( $externalId !== null ) {
+        $this->logoutFromDiscourse( $externalId );
+      } else {
+        // It is possible (especially if $wgPluggableAuth_EnableLocalLogin is
+        // true) that $user was not ever authenticated by Discourse, and thus
+        // has no linked external-id.  So, we just log this case and move on.
+        wfDebugLog(
+          self::LOG_GROUP,
+          "User '{$user->getName()}' (local-id {$localId}) not linked to " .
+          "any external-id; skipping Discourse logout." );
       }
     }
-    if ( $returnAddress === null ) {
-      $returnAddress = Title::newMainPage()->getFullURL();
-    }
-    wfDebugLog( self::LOG_GROUP, "Return to: '{$returnAddress}'" );
-
-    // Ensure session state is cleared out.  (Note that we don't care
-    // about saving the nonce for this request, because the logout request
-    // will not produce a response that we need to validate.)
-    $authManager = AuthManager::singleton();
-    $authManager->setAuthenticationSessionData( self::STATE_SESSION_KEY, null );
-
-    $this->redirectToSsoEndpointAndExit( self::generateRandomNonce(),
-                                         $returnAddress,
-                                         true /*isLogout*/ );
   }
 
 
@@ -263,10 +255,9 @@ class DiscourseSsoConsumer extends PluggableAuth {
    *
    * @return void  This method does not return a value, and may not return
    *               at all in case it redirects to the login flow.
-  */
+   */
   public static function onBeforeInitialize(
       $title, $unused, $out, $user, $request, $mw ) {
-
     // If "Auto Re-Login" is not enabled, nothing to do here.
     $config = new GlobalVarConfig( self::CONFIG_PREFIX );
     if ( !$config->get( 'EnableAutoRelogin' ) ) {
@@ -422,7 +413,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
           'Crack in the track! ' .
           'We cannot go forward, and we must not go back!... ' .
           'Code wants to update to schema version ' . self::SCHEMA_VERSION .
-          ', but DB already has version ' . $dbSchemaVersion . '.');
+          ', but DB already has version ' . $dbSchemaVersion . '.' );
 
     } else { // ( $dbSchemaVersion < self::SCHEMA_VERSION )
       // Database needs to be updated; assemble a patch chain.
@@ -954,6 +945,41 @@ class DiscourseSsoConsumer extends PluggableAuth {
 
 
   /**
+   * Given a local id (MediaWiki user id), find the associated external id
+   * (Discourse user id).
+   *
+   * @param int $localId the target local id
+   *
+   * @return ?int the associated external id if $localId is known, else null
+   */
+  private static function lookupExternalIdByLocalId( int $localId ) : ?int {
+    $dbr = wfGetDB( DB_REPLICA );
+    $row = $dbr->selectRow(
+      // tables
+      [ 'dsc' => self::LINK_TABLE ],
+      // columns/variables
+      [ 'external_id' => 'dsc.external_id',
+        'local_id' => 'dsc.local_id' ],
+      // conditions (WHERE)
+      [ 'dsc.local_id' => $localId, ],
+      // fname
+      __METHOD__,
+      // options
+      [],
+      // join conditions
+      []
+    );
+    if ( !$row ) {
+      return null;
+    }
+    # DB results appear to be strings even if a column is typed as integer.
+    $external_id = (int)$row->external_id;
+    self::insist( $external_id > 0 );
+    return $external_id;
+  }
+
+
+  /**
    * Find a local (Mediawiki) user with the given email address.
    *
    * @param string $email the target email address
@@ -1173,6 +1199,96 @@ class DiscourseSsoConsumer extends PluggableAuth {
       return $ssoEmail;
     }
     return '';
+  }
+
+
+  /**
+   * Ask Discourse to logout a user, via a request to the Discourse server's
+   * log_out API endpoint.
+   *
+   * @param int $externalId id of the Discourse user
+   *
+   * @return void
+   * @throws MWException if the request fails
+   */
+  private function logoutFromDiscourse( int $externalId ): void {
+    $fullLogoutUrl = $this->config->get( 'DiscourseUrl' ) .
+                   str_replace( '{id}', $externalId,
+                                $this->config->get( 'LogoutApiEndpoint' ) );
+
+    $options = [
+      // POST query
+      CURLOPT_POST             => true,
+      // Return response in return value of curl_exec()
+      CURLOPT_RETURNTRANSFER  => true,
+      CURLOPT_URL => $fullLogoutUrl,
+      CURLOPT_HTTPHEADER      => [
+        'Accept: application/json',
+        "Api-Key: {$this->config->get( 'LogoutApiKey' )}",
+        "Api-Username: {$this->config->get( 'LogoutApiUsername' )}",
+      ],
+    ];
+
+    wfDebugLog(
+      self::LOG_GROUP,
+      "Sending logout request id {$externalId} to {$fullLogoutUrl}..." );
+
+    [ $response, $httpStatus ] = self::executeCurl( $options );
+
+    if ( ( $response === false ) || ( $httpStatus !== 200 ) ) {
+      wfDebugLog( self::LOG_GROUP,
+                  "Request failed.  Status {$httpStatus}.  Response " .
+                  var_export( $response, true ) );
+      throw new MWException( "Discourse Logout request failed." );
+    }
+
+    $response = json_decode( $response, /*as array:*/true );
+    if ( ( $response['success'] ?? '' ) !== 'OK' ) {
+      wfDebugLog( self::LOG_GROUP,
+                  'Request failed.  Response ' . var_export( $response, true ) );
+      throw new MWException( "Discourse Logout request failed." );
+    }
+
+    wfDebugLog( self::LOG_GROUP, 'Discourse logout succeeded.' );
+  }
+
+
+  /**
+   * Execute an HTTP request using PHP's curl library.
+   *
+   * @param array $options array of CURLOPT_ parameters for the request
+   *
+   * @return array of [response, status].  response will be false if the
+   *  request fails due to a curl error; otherwise it will be a string with
+   *  the result of the request.  status is the integer HTTP status code
+   *  (e.g., 200, 404, ...) status is only meaningful if response is not false.
+   * @throws MWException for errors in preparing the curl request
+   */
+  private function executeCurl( array $options ) {
+    try {
+      $curl = curl_init();
+
+      foreach ( $options as $option => $value ) {
+        if ( !curl_setopt( $curl, $option, $value ) ) {
+          throw new MWException(
+              "Set curl option {$option} to {$value} failed." );
+        }
+      }
+
+      $response = curl_exec( $curl );
+      if ( ( $response === false ) || ( curl_errno( $curl ) !== 0 ) ) {
+        $errno = curl_errno( $curl );
+        $error = curl_error( $curl );
+        wfLogWarning( self::LOG_GROUP . ": Curl error {$errno}:  {$error}" );
+        $response = false;
+      }
+
+      $status = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+      return [ $response, $status ];
+    }
+    finally {
+      curl_close( $curl );
+    }
   }
 
 

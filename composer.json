@@ -31,6 +31,8 @@
   ],
   "require": {
     "php": ">=7.4",
+    "ext-curl": "*",
+    "ext-json": "*",
     "composer/installers": "^1.0.1",
     "mediawiki/pluggable-auth": "~5.7"
   },

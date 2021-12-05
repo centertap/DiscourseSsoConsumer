@@ -3,8 +3,8 @@
 ## Version devel
 ***Upgrading***
  - This release has new minimum prerequisites:
-   - Mediawiki >= 1.35
-   - PHP >= 7.4
+   - MediaWiki >= 1.35
+   - PHP >= 7.4 (with curl and json extensions)
    - PluggableAuth extension >= 5.7
 
    (The updated PHP and PluggableAuth requirements were actually expressed
@@ -37,13 +37,14 @@
    - Add a unique index/constraint to linkage table, to prevent multiple
      Discourse user-id's becoming linked to a single MediaWiki user-id.
    - Bump up prerequisites (uniformly):
-     - Mediawiki >= 1.35
-     - PHP >= 7.4
+     - MediaWiki >= 1.35
+     - PHP >= 7.4 (with curl and json extensions)
      - PluggableAuth extension >= 5.7
    - Rename/reorganize some of the configuration parameters (see
      ***Upgrading*** above).  One improvement:  only the base URL for the
      Discourse server needs to be provided now; the location of the SSO
      provider endpoint has a sensible default.
+   - Introduce new configuration parameters for Discourse logout.
 
 **Fixes**
    - Move growing release notes out of README.md and into this separate file.
@@ -52,6 +53,9 @@
      `$uniqueKeys` parameter.
    - Correctly check that required configuration parameters (those without
      sensible default values) have been configured with values.
+   - Get logout propagation to Discourse working again; it was broken by
+     changes in MW logout flow introduced between 1.31 and 1.35.  We now
+     use Discourse's log_out API.
 ---
 
 ## Version 1.2.0
