@@ -2,7 +2,16 @@
 
 ## Version devel
 ***Upgrading***
- - This major release introduces database schema changes:
+ - This release has new minimum prerequisites:
+   - Mediawiki >= 1.35
+   - PHP >= 7.4
+   - PluggableAuth extension >= 5.7
+
+   (The updated PHP and PluggableAuth requirements were actually expressed
+   in the `composer.json` file back in Version 1.2.0, but now they are in
+   `extension.json` as well.)
+
+ - This release introduces database schema changes:
    - _Make a backup of your database._
    - Run MW's `maintenance/update.php` after upgrading to this release;
    - Do not expect to be able to downgrade to the previous major release.
@@ -12,6 +21,10 @@
      to clearly track versions and implement updates.
    - Add a unique index/constraint to linkage table, to prevent multiple
      Discourse user-id's becoming linked to a single Mediawiki user-id.
+   - Bump up prerequisites (uniformly):
+     - Mediawiki >= 1.35
+     - PHP >= 7.4
+     - PluggableAuth extension >= 5.7
 
 **Fixes**
    - Move growing release notes out of README.md and into this separate file.
