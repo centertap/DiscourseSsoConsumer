@@ -1086,8 +1086,8 @@ class DiscourseSsoConsumer extends PluggableAuth {
       // rows
       [ 'external_id' => $externalId,
         'local_id' => $localId, ],
-      // uniqueIndexes
-      [ 'external_id' ],
+      // uniqueKeys
+      'external_id',
       // set
       [ 'local_id' => $localId, ],
       __METHOD__

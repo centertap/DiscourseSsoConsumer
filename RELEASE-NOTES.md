@@ -29,6 +29,8 @@
 **Fixes**
    - Move growing release notes out of README.md and into this separate file.
    - Add a missing `new` (when throwing an exception).
+   - Heed the deprecation warning about calling upsert() with an "old-style"
+     `$uniqueKeys` parameter.
 ---
 
 ## Version 1.2.0
