@@ -2,5 +2,5 @@
   "@metadata": {
     "authors": [ "Matt Marjanovic" ]
   },
-  "discourse-sso-consumer-desc": "{{desc|name=DiscourseSso|url=https://www.mediawiki.org/wiki/Extension:Discourse_SSO_Consumer}}"
+  "discourse-sso-consumer-desc": "{{desc|name=DiscourseSsoConsumer|url=https://github.com/centertap/DiscourseSsoConsumer}}"
 }

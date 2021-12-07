@@ -56,6 +56,7 @@
    - Get logout propagation to Discourse working again; it was broken by
      changes in MW logout flow introduced between 1.31 and 1.35.  We now
      use Discourse's log_out API.
+   - Fix the metadata in the extension description message.
 ---
 
 ## Version 1.2.0
