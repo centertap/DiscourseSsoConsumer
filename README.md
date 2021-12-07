@@ -228,6 +228,6 @@ See `TODO` comments in the source code.
 
 ## License
 
-This work is licensed under GPL 2.0 (or any later version).
+This work is licensed under GPL 3.0 (or any later version).
 
-`SPDX-License-Identifier: GPL-2.0-or-later`
+`SPDX-License-Identifier: GPL-3.0-or-later`
