@@ -1,6 +1,6 @@
 # Release Notes
 
-## Version devel
+## Version 2.0.0
 ***Upgrading***
  - This release has new minimum prerequisites:
    - MediaWiki >= 1.35
