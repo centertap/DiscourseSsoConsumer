@@ -29,7 +29,7 @@ use Exception;
 use ExtensionRegistry;
 use GlobalVarConfig;
 use IDatabase;
-use MediaWiki\Auth\AuthManager;
+use MediaWiki\MediaWikiServices;
 use MWException;
 use PluggableAuth;
 use RequestContext;
@@ -129,7 +129,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
    */
   public function authenticate( &$id, &$username, &$realname, &$email,
                                 &$errorMessage ) {
-    $authManager = AuthManager::singleton();
+    $authManager = MediaWikiServices::getInstance()->getAuthManager();
     try {
       $state = $authManager->getAuthenticationSessionData(
         self::STATE_SESSION_KEY, null );
@@ -182,7 +182,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
    * @param int $localId
    */
   public function saveExtraAttributes( $localId ) {
-    $authManager = AuthManager::singleton();
+    $authManager = MediaWikiServices::getInstance()->getAuthManager();
     $state = $authManager->getAuthenticationSessionData(
       self::STATE_SESSION_KEY );
 
@@ -321,7 +321,8 @@ class DiscourseSsoConsumer extends PluggableAuth {
     wfDebugLog(
       self::LOG_GROUP,
       "Populating groups for user #{$user->getId()} '{$user->getName()}'..." );
-    $state = AuthManager::singleton()->getAuthenticationSessionData(
+    $authManager = MediaWikiServices::getInstance()->getAuthManager();
+    $state = $authManager->getAuthenticationSessionData(
       self::STATE_SESSION_KEY );
     self::insist( $state['local_info']['id'] === $user->getId() );
     $credentials = $state['sso_credentials'];
@@ -588,7 +589,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
       'PluggableAuthLogin' )->getFullURL();
 
     // Update session state (saving nonce for the next phase).
-    $authManager = AuthManager::singleton();
+    $authManager = MediaWikiServices::getInstance()->getAuthManager();
     $authManager->setAuthenticationSessionData(
       self::STATE_SESSION_KEY, [ 'nonce' => $nonce ] );
 
@@ -715,7 +716,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
     // Update state.
     $state = [ 'sso_credentials' => $ssoCredentials,
                'local_info' => $localInfo ];
-    $authManager = AuthManager::singleton();
+    $authManager = MediaWikiServices::getInstance()->getAuthManager();
     $authManager->setAuthenticationSessionData(
       self::STATE_SESSION_KEY, $state );
 
