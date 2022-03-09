@@ -21,8 +21,8 @@
 
 -- Ensure we are at v0002 (if not, fail with NOT NULL constraint violation).
 INSERT INTO /*_*/discourse_sso_consumer_meta (m_key, m_value)
-  VALUES ( 'precheck', (SELECT m_value FROM /*_*/discourse_sso_consumer_meta
-                        WHERE m_key = 'schemaVersion' AND m_value = '2') );
+  SELECT 'precheck', (SELECT m_value FROM /*_*/discourse_sso_consumer_meta
+                        WHERE m_key = 'schemaVersion' AND m_value = '2');
 DELETE FROM /*_*/discourse_sso_consumer_meta WHERE m_key = 'precheck';
 
 
