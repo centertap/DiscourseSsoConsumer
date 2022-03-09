@@ -41,7 +41,7 @@ dependencies, e.g.,
    ```
    If you want to pin the major version of this extension (so that future
    updates do not inadvertently introduce breaking changes), change the first
-   command to something like this (e.g., for major revision "194":
+   command to something like this (e.g., for major revision "194"):
    ```
    $ COMPOSER=composer.local.json composer require --no-update centertap/discourse-sso-consumer:^194.0.0
    ```
