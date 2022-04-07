@@ -21,11 +21,11 @@
 
 -- Ensure we are at v0001 (if not, fail with NOT NULL constraint violation).
 INSERT INTO /*_*/discourse_sso_consumer_meta (m_key, m_value)
-  SELECT 'CheckForCorrectStartingVersion',
-           (SELECT m_value FROM /*_*/discourse_sso_consumer_meta
-              WHERE m_key = 'schemaVersion' AND m_value = '1');
+  SELECT 'CheckSchemaVersionPrecondition',
+         (SELECT m_value FROM /*_*/discourse_sso_consumer_meta
+            WHERE m_key = 'schemaVersion' AND m_value = '1');
 DELETE FROM /*_*/discourse_sso_consumer_meta
-  WHERE m_key = 'CheckForCorrectStartingVersion';
+  WHERE m_key = 'CheckSchemaVersionPrecondition';
 
 
 -- Rename original lone table to be LINK table.

@@ -21,9 +21,11 @@
 
 -- Ensure we are at v0002 (if not, fail with NOT NULL constraint violation).
 INSERT INTO /*_*/discourse_sso_consumer_meta (m_key, m_value)
-  SELECT 'precheck', (SELECT m_value FROM /*_*/discourse_sso_consumer_meta
-                        WHERE m_key = 'schemaVersion' AND m_value = '2');
-DELETE FROM /*_*/discourse_sso_consumer_meta WHERE m_key = 'precheck';
+  SELECT 'CheckSchemaVersionPrecondition',
+         (SELECT m_value FROM /*_*/discourse_sso_consumer_meta
+            WHERE m_key = 'schemaVersion' AND m_value = '2');
+DELETE FROM /*_*/discourse_sso_consumer_meta
+  WHERE m_key = 'CheckSchemaVersionPrecondition';
 
 
 -- Create index with unique constraint on link.local_id.
