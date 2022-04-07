@@ -1,11 +1,19 @@
 # Release Notes
 
+## Version 2.0.2
+**Fixes**
+   - Fix the schemaVersion check boilerplate in SQL patch files so that it
+     works on mysql/mariadb (as well as postgresql and sqlite3, as before).
+     (Thanks to Joel Uckelman for the report and fix.)
+---
+
 ## Version 2.0.1
 **Fixes**
    - Replace instances of `AuthManager::singleton()`, which was deprecated in
      MediaWiki 1.35 and removed completely in MediaWiki 1.37.  (Thanks to
      Raj Rathore for reporting the problem and for verifying that this
      extension now works with MW 1.37.)
+---
 
 ## Version 2.0.0
 ***Upgrading***
