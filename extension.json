@@ -1,7 +1,7 @@
 {
     "name": "Discourse SSO Consumer",
-    "version": "2.0.2",
-    "author": [ "Matt Marjanovic" ],
+    "version": "2.1.0",
+    "author": [ "Matt Marjanovic", "Kieran Chambers" ],
     "url": "https://github.com/centertap/DiscourseSsoConsumer",
     "descriptionmsg": "discourse-sso-consumer-desc",
     "type": "other",
@@ -9,10 +9,21 @@
     "requires": {
         "MediaWiki": ">=1.35.0",
         "extensions": {
-            "PluggableAuth": "~5.7"
+            "PluggableAuth": ">=6.0"
         },
         "platform": {
             "php": ">=7.4"
+        }
+    },
+    "attributes": {
+        "PluggableAuth": {
+            "DiscourseSsoConsumer": {
+                "class": "MediaWiki\\Extension\\DiscourseSsoConsumer\\DiscourseSsoConsumer",
+                "services": [
+                    "MainConfig",
+                    "AuthManager"
+                ]
+            }
         }
     },
     "MessagesDirs": {
@@ -76,9 +87,6 @@
         "DiscourseSsoConsumer_GroupMaps": {
             "value": null,
             "description": "If non-null, an array specifying which local Mediawiki group memberships should be derived from Discourse credentials.  Membership in the specified groups will be toggled according to the credentials on each login; groups which are not mentioned here will not be touched.  Each element of the array should be of the form 'local-group' => [ 'discourse-group-1', 'discourse-group-2', ...].  Two special tokens '@ADMIN@' and '@MODERATOR@' can be used to represent the is_admin and is_moderator flags in the SSO credentials."
-        },
-        "PluggableAuth_Class": {
-            "value": "MediaWiki\\Extension\\DiscourseSsoConsumer\\DiscourseSsoConsumer"
         }
     },
     "manifest_version": 2

@@ -31,11 +31,13 @@ use GlobalVarConfig;
 use IDatabase;
 use MediaWiki\MediaWikiServices;
 use MWException;
-use PluggableAuth;
+use MediaWiki\Extension\PluggableAuth\PluggableAuth;
 use RequestContext;
 use SpecialPage;
 use Title;
-use User;
+use MediaWiki\User\UserIdentity;
+use MediaWiki\User\UserGroupManager;
+use MediaWiki\User\UserIdentityLookup;
 
 
 class DiscourseSsoConsumer extends PluggableAuth {
@@ -128,7 +130,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
    * @return bool true if user is authenticated, false otherwise
    */
   public function authenticate( &$id, &$username, &$realname, &$email,
-                                &$errorMessage ) {
+                                &$errorMessage ): bool {
     $authManager = MediaWikiServices::getInstance()->getAuthManager();
     try {
       $state = $authManager->getAuthenticationSessionData(
@@ -181,7 +183,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
    *
    * @param int $localId
    */
-  public function saveExtraAttributes( $localId ) {
+  public function saveExtraAttributes( $localId ): void {
     $authManager = MediaWikiServices::getInstance()->getAuthManager();
     $state = $authManager->getAuthenticationSessionData(
       self::STATE_SESSION_KEY );
@@ -212,7 +214,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
    *
    * @param User &$user
    */
-  public function deauthenticate( User &$user ) {
+  public function deauthenticate( UserIdentity &$user ): void {
     wfDebugLog( self::LOG_GROUP, 'deauthenticate()...' );
 
     // The user is explicitly logging out; clear our success cookie so that
@@ -311,7 +313,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
    * @param User $user
    *
    */
-  public static function onPluggableAuthPopulateGroups( User $user ) {
+  public static function onPluggableAuthPopulateGroups( UserIdentity $user ) {
     $groupMaps = ( new GlobalVarConfig( self::CONFIG_PREFIX ) )->get( 'GroupMaps' );
     if ( !$groupMaps ) {
       wfDebugLog( self::LOG_GROUP, 'No GroupMaps configured.' );
@@ -356,16 +358,18 @@ class DiscourseSsoConsumer extends PluggableAuth {
     // which call hooks and do database things even if membership is not going
     // to change,  we call them only if we need to modify the status of
     // membership in a group.
-    $currentGroups = $user->getGroups();
+    $userGroupManager = MediaWikiServices::getUserGroupManager();
+    $currentGroups = $userGroupManager->getUserGroups($user);
     $toAdd = array_diff( $toAdd, $currentGroups );
     $toRemove = array_intersect( $toRemove, $currentGroups );
     foreach ( $toAdd as $group ) {
       wfDebugLog( self::LOG_GROUP, "Adding membership to '{$group}'." );
-      $user->addGroup( $group );
+      $userGroupManager->addUserToGroup($user, $group, /*expiry=*/null, 
+        /*allowUpdate=*/true);
     }
     foreach ( $toRemove as $group ) {
       wfDebugLog( self::LOG_GROUP, "Removing membership to '{$group}'." );
-      $user->removeGroup( $group );
+      $userGroupManager->removeUserFromGroup($user, $group);
     }
   }
 
@@ -662,6 +666,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
    * @throws MWException if authentication fails
    */
   private function completeAuthentication( string $originalNonce ) : array {
+    // TODO: Burn the nonce, to avoid SSO replay attacks?
     wfDebugLog( self::LOG_GROUP, "Completing authentication..." );
 
     $ssoCredentials = $this->validateAndUnpackCredentials( $originalNonce );
@@ -1076,9 +1081,10 @@ class DiscourseSsoConsumer extends PluggableAuth {
    */
   private static function ensureFreshUsername( string $originalUsername )
     : string {
+    $uidLookup = MediaWikiServices::getInstance()->getUserIdentityLookup();
     $suffix = 1;
     $username = $originalUsername;
-    while ( User::idFromName( $username ) !== null ) {
+    while ($uidLookup->getUserIdentityByName( $username ) !== null ) {
       if ( $suffix > 1000 ) {
         throw new MWException(
           "Failed to find fresh username for '{$originalUsername}'" .

@@ -21,6 +21,11 @@
       "email": "dothemath@centertap.org",
       "homepage": "https://www.centertap.org/",
       "role": "Maintainer"
+    },
+    {
+      "name": "Kieran Chambers",
+      "email": "kieran.chambers@outlook.com",
+      "role": "Maintainer"
     }
   ],
   "funding": [
@@ -34,7 +39,7 @@
     "ext-curl": "*",
     "ext-json": "*",
     "composer/installers": "^1.0.1",
-    "mediawiki/pluggable-auth": "~5.7"
+    "mediawiki/pluggable-auth": ">=6.0"
   },
   "require-dev": {
     "php-parallel-lint/php-parallel-lint": ">=1.0.0",

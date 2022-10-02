@@ -1,5 +1,17 @@
 # Release Notes
 
+## Version 2.1.0
+***Upgrading***
+- This release has new minimum prerequisites:
+   - MediaWiki >= 1.35
+   - PHP >= 7.4 (with curl and json extensions)
+   - PluggableAuth extension >= 6.0
+
+**Fixes**
+   - Updated inherited PluggableAuth functions to match new format
+   - Refactored old User class calls to appropriate class calls from the MediaWiki\User namespace
+---
+
 ## Version 2.0.2
 **Fixes**
    - Fix the schemaVersion check boilerplate in SQL patch files so that it
