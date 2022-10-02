@@ -1,7 +1,7 @@
 {
     "name": "Discourse SSO Consumer",
     "version": "2.1.0",
-    "author": [ "Matt Marjanovic", "Kieran Chambers" ],
+    "author": [ "Matt Marjanovic" ],
     "url": "https://github.com/centertap/DiscourseSsoConsumer",
     "descriptionmsg": "discourse-sso-consumer-desc",
     "type": "other",
