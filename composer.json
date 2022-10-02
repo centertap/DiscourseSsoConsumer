@@ -21,11 +21,6 @@
       "email": "dothemath@centertap.org",
       "homepage": "https://www.centertap.org/",
       "role": "Maintainer"
-    },
-    {
-      "name": "Kieran Chambers",
-      "email": "kieran.chambers@outlook.com",
-      "role": "Maintainer"
     }
   ],
   "funding": [
