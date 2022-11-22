@@ -1214,7 +1214,7 @@ class DiscourseSsoConsumer extends PluggableAuth {
    */
   private function logoutFromDiscourse( int $externalId ): void {
     $fullLogoutUrl = $this->config->get( 'DiscourseUrl' ) .
-                   str_replace( '{id}', $externalId,
+                   str_replace( '{id}', (string) $externalId,
                                 $this->config->get( 'LogoutApiEndpoint' ) );
 
     $options = [
