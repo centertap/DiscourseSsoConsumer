@@ -1,10 +1,20 @@
 # Release Notes
 
+## Version 2.0.3
+**Fixes**
+   - Fix a type error in logout (if `EnableDiscourseLogout` is configured true)
+     that arises when running on PHP 8.  PHP 7.4 does a silent type-coercion
+     in this case, hiding the bug earlier.
+     (Thanks again to Joel Uckelman for the report and fix.)
+---
+
 ## Version 2.0.2
 **Fixes**
    - Fix the schemaVersion check boilerplate in SQL patch files so that it
      works on mysql/mariadb (as well as postgresql and sqlite3, as before).
      (Thanks to Joel Uckelman for the report and fix.)
+   - Remove `composer.lock` from the repo.  (It should never have been
+     committed in the first place.)
 ---
 
 ## Version 2.0.1
@@ -20,7 +30,7 @@
  - This release has new minimum prerequisites:
    - MediaWiki >= 1.35
    - PHP >= 7.4 (with curl and json extensions)
-   - PluggableAuth extension >= 5.7
+   - PluggableAuth extension ~5.7 (< 6.x)
 
    (The updated PHP and PluggableAuth requirements were actually expressed
    in the `composer.json` file back in Version 1.2.0, but now they are in
