@@ -1,3 +1,6 @@
 *~
 /vendor/
 composer.lock
+.phan/SourceLinks/mediawiki-core-includes
+.phan/SourceLinks/mediawiki-core-vendor
+.phan/SourceLinks/pluggable-auth-includes

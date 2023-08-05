@@ -1,5 +1,80 @@
 # Release Notes
 
+## Version 3.0.0
+
+***Upgrading***
+
+ - This release introduces database schema changes:
+   - _Make a backup of your database._
+   - Run MediaWiki's `maintenance/update.php` after upgrading to this release.
+   - Do not expect to be able to downgrade to the previous major release.
+
+ - This release introduces changes to the configuration parameters,
+   including new parameters and an altogether new mechanism for
+   customizing the parameters.  You **will** need to modify your
+   `LocalSettings.php`.  See [`README.md`](README.md) for instructions
+   on setting parameters, in particular
+   [by using a hook function](README.md#configure-discoursessoconsumer-using-a-hook-function).
+
+   | pre-3.0.0               | 3.0.0                                    | default value                      |
+   |-------------------------|------------------------------------------|------------------------------------|
+   | `DiscourseUrl`          | `['DiscourseUrl']`                       | *no default, always required*      |
+   |                         |                                          |                                    |
+   | &mdash;                 | `['Sso']['Enable']`                      | `false`                            |
+   | `SsoProviderEndpoint`   | `['Sso']['ProviderEndpoint']`            | `'/session/sso_provider'`          |
+   | `SsoSharedSecret`       | `['Sso']['SharedSecret']`                | `null` *(no default)*              |
+   | `EnableAutoRelogin`     | `['Sso']['EnableAutoRelogin']`           | `false`                            |
+   | &mdash;                 | `['Sso']['EnableSeamlessLogin']`         | `false`                            |
+   |                         |                                          |                                    |
+   | `LinkExistingBy`        | `['User']['LinkExistingBy']`             | `[]`                               |
+   | `ExposeName`            | `['User']['ExposeName']`                 | `false`                            |
+   | `ExposeEmail`           | `['User']['ExposeEmail']`                | `false`                            |
+   | `GroupMaps`             | `['User']['GroupMaps']`                  | `null` *(optional, no default)*    |
+   |                         |                                          |                                    |
+   | `LogoutApiUsername`     | `['DiscourseApi']['Username']`           | `system`                           |
+   | `LogoutApiKey`          | `['DiscourseApi']['Key']`                | `null` *(no default)*              |
+   | `LogoutApiEndpoint`     | `['DiscourseApi']['LogoutEndpoint']`     | `'/admin/users/{id}/log_out.json'` |
+   | `EnableDiscourseLogout` | `['DiscourseApi']['EnableLogout']`       | `false`                            |
+   |                         |                                          |                                    |
+   | &mdash;                 | `['Webhook']['Enable']`                  | `false`                            |
+   | &mdash;                 | `['Webhook']['SharedSecret']`            | `null` *(no default)*              |
+   | &mdash;                 | `['Webhook']['AllowedIpList']`           | `[]`                               |
+   | &mdash;                 | `['Webhook']['IgnoredEvents']`           | `['user_created']`                 |
+   |                         |                                          |                                    |
+   | &mdash;                 | `['Logout']['OfferGlobalOptionToUser']`  | `false`                            |
+   | &mdash;                 | `['Logout']['ForwardToDiscourse']`       | `false`                            |
+   | &mdash;                 | `['Logout']['HandleEventFromDiscourse']` | `false`                            |
+
+**Features**
+   - Revamped configuration scheme and parameters, which is hopefully more
+     clear and handles future new parameters more elegantly.
+   - Webhook receiver in MediaWiki to process webhook events emitted by Discourse
+     - Discourse-initiated global logout from MediaWiki
+     - Immediate user parameter updates (e.g., group membership, authorization level)
+     - Create users in MediaWiki as they are created in Discourse (i.e., even
+       before they login to MediaWiki for the first time)
+   - SeamlessLogin, for seamless initial login to MediaWiki if a user is
+     already logged-in to Discourse (followed by AutoRelogin to keep them
+     logged-in)
+   - API to access the complete Discourse user records received via webhook
+
+**Fixes**
+   - Local (single-device) logout from MediaWiki can now (again) be forwarded
+     to Discourse without causing a global (all-device) logout from Discourse.
+   - Immediate group-membership updates via webhook help close a security hole:
+     without this, a user whose privilege level was reduced could keep
+     operating at the prior level just by keeping their MW session
+     alive.
+
+**Known Issues**
+   - SeamlessLogin depends on a pull-request not yet accepted into Discourse
+     as of this release of **DiscourseSsoConsumer**.
+     See https://github.com/discourse/discourse/pull/22393
+   - Discourse does not (yet?) emit `user` webhook events in all the situations
+     in which it could/should.  See
+     https://meta.discourse.org/t/missing-webhook-user-events-by-design-or-oversight/273579
+---
+
 ## Version 2.0.3
 **Fixes**
    - Fix a type error in logout (if `EnableDiscourseLogout` is configured true)

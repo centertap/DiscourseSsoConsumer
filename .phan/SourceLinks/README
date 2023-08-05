@@ -1,0 +1,6 @@
+Create links to upstream source dependencies here, so that phan can find them.
+E.g.:
+
+$ ln -s /SOMEWHERE/mediawiki-core/includes mediawiki-core-includes
+$ ln -s /SOMEWHERE/mediawiki-core/vendor mediawiki-core-vendor
+$ ln -s /SOMEWHERE/mediawiki-extensions-PluggableAuth/includes pluggable-auth-includes
