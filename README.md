@@ -68,7 +68,7 @@ To make use of **DiscourseSsoConsumer**, you will need:
      with newer versions.*
  * [PluggableAuth](https://www.mediawiki.org/wiki/Extension:PluggableAuth)
    extension
-   * *PluggableAuth < 6.0 is required by DiscourseSsoConsumer 3.x.x*
+   * *PluggableAuth ~6.3 is required by DiscourseSsoConsumer 4.x.x*
  * a [Discourse](https://discourse.org/) discussion server
 
 ---
@@ -210,9 +210,21 @@ in general.
 
 ### Configure PluggableAuth and MediaWiki in General
 
-When **DiscourseSsoConsumer** loads, it will automatically plug itself into the
-**PluggableAuth** extension.  You will probably want to tune the configuration
-of [**PluggableAuth**](https://www.mediawiki.org/wiki/Extension:PluggableAuth),
+At a minimum, you will need to tell
+[**PluggableAuth**](https://www.mediawiki.org/wiki/Extension:PluggableAuth),
+that it should use **DiscourseSsoConsumer**,
+by providing an entry in `$wgPluggableAuth_Config`:
+```php
+$wgPluggableAuth_Config = [
+    'MY-BUTTON-LABEL' => [ 'plugin' => 'DiscourseSsoConsumer' ]
+];
+```
+Replace `MY-BUTTON-LABEL` with whatever string you would like to see
+in the wiki's login button.  (Even if `$wgPluggableAuth_EnableLocalLogin`
+is disabled, the wiki login page may still appear in certain situations.
+So, it is worth choosing a sensible value for this.)
+
+You will probably want to tune the configuration of **PluggableAuth**,
 in particular:
 
  * `$wgPluggableAuth_EnableAutoLogin`
@@ -225,11 +237,6 @@ in particular:
  * `$wgPluggableAuth_EnableLocalProperties`
    * If this is enabled, then Discourse real names and email addresses will
      not be synchronized with MediaWiki; the wiki attributes will be left alone.
- * `$wgPluggableAuth_ButtonLabelMessage` and `$wgPluggableAuth_ButtonLabel`
-   * These set labels/messages on the wiki's login page.  Even if
-     `$wgPluggableAuth_EnableLocalLogin` is disabled, the wiki login page
-     may still appear in certain situations (with expired login-tokens, etc).
-     So, it is worth setting these to sensible values.
 
 As mentioned in the **PluggableAuth** documentation, you will likely want to
 configure the MediaWiki permissions to allow extensions to automatically

@@ -30,8 +30,7 @@ use Exception;
 use MediaWiki\MediaWikiServices;
 use MWException;
 use MWTimestamp;
-use PluggableAuthLogin;
-use PluggableAuthPrimaryAuthenticationProvider;
+use MediaWiki\Extension\PluggableAuth\PluggableAuthLogin;
 use MediaWiki\Session\SessionManager;
 use SpecialPage;
 use Status;
@@ -634,12 +633,8 @@ class SpecialWebhook extends SpecialPage {
   private function getPluggableAuthInstance(
       AuthManager $authManager ) : PrimaryAuthenticationProvider {
     $instance =
-        // For PluggableAuth ==5.7:
         $authManager->getAuthenticationProvider(
-            PluggableAuthPrimaryAuthenticationProvider::class );
-    // TODO(maddog) For PluggableAuth >=6.0:
-    //  $authManager->getAuthenticationProvider(
-    //      MediaWiki\Extension\PluggableAuth\PrimaryAuthenticationProvider::class );
+            \MediaWiki\Extension\PluggableAuth\PrimaryAuthenticationProvider::class );
     Util::insist( $instance instanceof PrimaryAuthenticationProvider );
     return $instance;
   }
@@ -655,16 +650,44 @@ class SpecialWebhook extends SpecialPage {
    * @param AuthManager $authManager an instance of AuthManager
    *
    * @return void This function returns no value.
+   * @throws MWException on failure, if PluggableAuth does not appear to know
+   *         about DiscourseSsoConsumer.
    */
   private function setupPluggableAuthSessionData(
       array $newWikiInfo,
       array $newCredentials,
       AuthManager $authManager) : void {
+    Util::debug( __METHOD__ );
     // Stash data where PluggableAuth::autoCreatedAccount() will look for it.
     $authManager->setAuthenticationSessionData(
         PluggableAuthLogin::REALNAME_SESSION_KEY, $newWikiInfo['realname'] );
     $authManager->setAuthenticationSessionData(
         PluggableAuthLogin::EMAIL_SESSION_KEY, $newWikiInfo['email'] );
+    // PluggableAuth >= 6.0 supports having multiple plugins configured/active,
+    // and it keeps track of which plugin is involved in a given auth flow....
+    // So, to complete the illusion of a legitimate auth flow, we need to
+    // figure out what name PluggableAuth assigned to us, and stash that in
+    // the session, too.
+
+    $pluggableAuthFactory = MediaWikiServices::getInstance()->get( 'PluggableAuthFactory' );
+    $ourOwnName = null;
+    foreach ( $pluggableAuthFactory->getConfig() as $name => $entry ) {
+      // TODO(maddog) Maybe make the string a named constant (and in the
+      //              exception message below)?
+      // NB: 'DiscourseSsoConsumer' needs to match the key that we used in the
+      //     "attributes" section of our extension.json file.
+      if ( $entry['plugin'] === 'DiscourseSsoConsumer' ) {
+        $ourOwnName = $name;
+        break;
+      }
+    }
+    if ( $ourOwnName === null ) {
+      throw new MWException(
+          'PluggableAuth does not seem to know about "DiscourseSsoConsumer"; has $wgPluggableAuth_Config been configured?' );
+    }
+    $authManager->getRequest()->setSessionData(
+        PluggableAuthLogin::AUTHENTICATIONPLUGINNAME_SESSION_KEY, $ourOwnName );
+
     // Stash data where our AuthenticationPlugin::saveExtraAttributes()
     // will look for it.
     $state = [ 'wiki_info' => $newWikiInfo,

@@ -28,13 +28,14 @@ use Throwable;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Session\SessionManager;
 use MWException;
-use PluggableAuth;
-use PluggableAuthLogin;
+use MediaWiki\Extension\PluggableAuth\PluggableAuth;
+use MediaWiki\Extension\PluggableAuth\PluggableAuthLogin;
 use Profiler;
 use RequestContext;
 use SpecialPage;
 use Title;
 use User;
+use MediaWiki\User\UserIdentity;
 use WebRequest;
 use WebResponse;
 
@@ -74,16 +75,17 @@ class AuthenticationPlugin extends PluggableAuth {
   /**
    * Implement PluggableAuth::authenticate() interface.
    *
-   * @param int &$id
-   * @param string &$username
-   * @param string &$realname
-   * @param string &$email
-   * @param string &$errorMessage
+   * @param ?int &$id
+   * @param ?string &$username
+   * @param ?string &$realname
+   * @param ?string &$email
+   * @param ?string &$errorMessage
    *
    * @return bool true if user is authenticated, false otherwise
    */
-  public function authenticate( &$id, &$username, &$realname, &$email,
-                                &$errorMessage ) {
+  public function authenticate( ?int &$id, ?string &$username,
+                                ?string &$realname, ?string &$email,
+                                ?string &$errorMessage ) : bool {
     if ( !Config::config()['Sso']['Enable'] ) {
       $errorMessage = "DiscourseSsoConsumer 'Sso' is not enabled/configured.";
       return false;
@@ -206,8 +208,10 @@ class AuthenticationPlugin extends PluggableAuth {
    * Implement PluggableAuth::saveExtraAttributes() interface.
    *
    * @param int $wikiId
+   *
+   * @return void This function returns no value.
    */
-  public function saveExtraAttributes( $wikiId ) {
+  public function saveExtraAttributes( int $wikiId ) : void {
     Util::insist( Config::config()['Sso']['Enable'] );
 
     $authManager = MediaWikiServices::getInstance()->getAuthManager();
@@ -279,9 +283,11 @@ class AuthenticationPlugin extends PluggableAuth {
    * This is actually chained off of the UserLogoutComplete hook, which is
    * invoked by ApiLogout or SpecialUserLogout after a logout has executed.
    *
-   * @param User &$user
+   * @param UserIdentity &$user
+   *
+   * @return void This function returns no value.
    */
-  public function deauthenticate( User &$user ) {
+  public function deauthenticate( UserIdentity &$user ) : void {
     Util::debug( 'deauthenticate()...' );
 
     // The user is explicitly logging out; we need to remember this, so that
@@ -296,7 +302,8 @@ class AuthenticationPlugin extends PluggableAuth {
 
     if ( $globalLogout ) {
       // Invalidate all of the user's wiki sessions.
-      SessionManager::singleton()->invalidateSessionsForUser( $user );
+      SessionManager::singleton()->invalidateSessionsForUser(
+          User::newFromIdentity( $user ) );
 
       // Maybe send a synchronous logout request the Discourse log_out API.
       if ( Config::config()['Logout']['ForwardToDiscourse'] ) {
@@ -381,6 +388,7 @@ class AuthenticationPlugin extends PluggableAuth {
     $authManager = MediaWikiServices::getInstance()->getAuthManager();
     $state = $authManager->getAuthenticationSessionData(
       self::STATE_SESSION_KEY );
+    Util::debug("stashed state:  " . var_export( $state, true ) );
     // TODO(maddog) (In PA>=5.7?...) if more than one auth-plugin is enabled,
     //              it may be possible to have more than one source of
     //              "autocreated" users... in which case, is it possible

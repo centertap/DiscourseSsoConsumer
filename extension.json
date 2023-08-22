@@ -1,6 +1,6 @@
 {
     "name": "Discourse SSO Consumer",
-    "version": "3.0.0",
+    "version": "4.0.0",
     "author": [ "Matt Marjanovic" ],
     "url": "https://github.com/centertap/DiscourseSsoConsumer",
     "descriptionmsg": "discourse-sso-consumer-desc",
@@ -9,7 +9,7 @@
     "requires": {
         "MediaWiki": ">=1.35.0",
         "extensions": {
-            "PluggableAuth": "~5.7"
+            "PluggableAuth": "~6.3"
         },
         "platform": {
             "php": ">=7.4"
@@ -87,9 +87,14 @@
                 "HandleEventFromDiscourse": false
               }
             }
-        },
-        "PluggableAuth_Class": {
-            "value": "MediaWiki\\Extension\\DiscourseSsoConsumer\\AuthenticationPlugin"
+        }
+    },
+    "attributes": {
+        "PluggableAuth": {
+            "DiscourseSsoConsumer": {
+                "class": "MediaWiki\\Extension\\DiscourseSsoConsumer\\AuthenticationPlugin",
+                "services": []
+            }
         }
     },
     "manifest_version": 2

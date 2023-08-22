@@ -1,5 +1,30 @@
 # Release Notes
 
+## Version 4.0.0
+
+***Upgrading***
+
+ - This version is functionally identical to version 3.0.0, but it works with
+   (and requires) **PluggableAuth 6.3**.
+ - There are no changes to the database schema.
+ - There are no changes to the **DiscourseSsoConsumer** configuration.
+ - You **will** need to make changes to your **PluggableAuth** configuration.
+ - These variables are no longer used:
+   - `$wgPluggableAuth_ButtonLabel`
+   - `$wgPluggableAuth_ButtonLabelMessage`
+ - Setting `$wgPluggableAuth_Config` is required.  Minimally:
+```php
+$wgPluggableAuth_Config = [
+    'MY-BUTTON-LABEL' => [ 'plugin' => 'DiscourseSsoConsumer' ]
+];
+```
+ - Replace `MY-BUTTON-LABEL` with a sensible label for the login button
+   (e.g., whatever value you had used for `$wgPluggableAuth_ButtonLabel`).
+ - You should be able to downgrade back to version 3.0.0 without any issues.
+   (Of course, you will need to downgrade/reconfigure PluggableAuth, too!)
+
+---
+
 ## Version 3.0.0
 
 ***Upgrading***
