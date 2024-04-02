@@ -336,7 +336,11 @@ class Core {
     : string {
     $suffix = 1;
     $username = $originalUsername;
-    while ( User::idFromName( $username ) !== null ) {
+    $uidLookup = MediaWikiServices::getInstance()->getUserIdentityLookup();
+    // NB: Default READ_NORMAL of getUserIdentityByName() is sufficient,
+    //     because, as stated at our one call site, "All we need to do is
+    //     (try to) make sure we supply an available new username."
+    while ( $uidLookup->getUserIdentityByName( $username ) !== null ) {
       if ( $suffix > 1000 ) {
         throw new MWException(
           "Failed to find fresh username for '{$originalUsername}'" .
