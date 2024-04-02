@@ -2,7 +2,7 @@
 /**
  * This file is part of DiscourseSsoConsumer.
  *
- * Copyright 2023 Matt Marjanovic
+ * Copyright 2024 Matt Marjanovic
  *
  * DiscourseSsoConsumer is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published

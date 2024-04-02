@@ -62,8 +62,8 @@ for your wiki, consider making a
 To make use of **DiscourseSsoConsumer**, you will need:
 
  * PHP >= 7.4.0
- * MediaWiki >= 1.35
-   * ***DiscourseSsoConsumer** has been developed/tested with MW 1.35.
+ * MediaWiki >= 1.39
+   * ***DiscourseSsoConsumer** has been developed/tested with MW 1.39.
      See [Known Bugs/Issues](#known-bugs-issues) for possible issues
      with newer versions.*
  * [PluggableAuth](https://www.mediawiki.org/wiki/Extension:PluggableAuth)
@@ -801,8 +801,6 @@ See [`RELEASE-NOTES.md`](RELEASE-NOTES.md).
 * Discourse does not (yet?) emit `user` webhook events in all the situations
   in which it could/should.  See
   https://meta.discourse.org/t/missing-webhook-user-events-by-design-or-oversight/273579
-* SeamlessLogin depends on a pull-request not yet accepted into Discourse.
-  See https://github.com/discourse/discourse/pull/22393
 * See `TODO` comments in the source code.
 
 ---
@@ -815,4 +813,4 @@ This work is licensed under GPL 3.0 (or any later version).
 
 `SPDX-License-Identifier: GPL-3.0-or-later`
 
-Copyright 2023 Matt Marjanovic
+Copyright 2024 Matt Marjanovic

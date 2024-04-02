@@ -1,13 +1,13 @@
 {
     "name": "Discourse SSO Consumer",
-    "version": "4.0.0",
+    "version": "5.0.0",
     "author": [ "Matt Marjanovic" ],
     "url": "https://github.com/centertap/DiscourseSsoConsumer",
     "descriptionmsg": "discourse-sso-consumer-desc",
     "type": "other",
     "license-name":  "GPL-3.0-or-later",
     "requires": {
-        "MediaWiki": ">=1.35.0",
+        "MediaWiki": ">=1.39.0",
         "extensions": {
             "PluggableAuth": "~6.3"
         },

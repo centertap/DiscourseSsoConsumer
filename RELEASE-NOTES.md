@@ -1,9 +1,22 @@
 # Release Notes
 
+## Version 5.0.0
+
+***Upgrading***
+ - This version is functionally identical to version 4.0.0, but it now requires
+   MediaWiki >= 1.39, and should work with MW >= 1.41.  (It may still work with
+   MW == 1.36/1.37/1.38, but that is untested and unsupported.)
+ - There are no configuration or schema changes.
+
+**Fixes**
+ - Replace instances of `User::idFromName()`, which was deprecated in
+   MediaWiki 1.37 and removed completely in MediaWiki 1.41.  (Thanks to
+   Github user @Kelduum for reporting the problem.)
+---
+
 ## Version 4.0.0
 
 ***Upgrading***
-
  - This version is functionally identical to version 3.0.0, but it works with
    (and requires) **PluggableAuth 6.3**.
  - There are no changes to the database schema.
@@ -22,7 +35,6 @@ $wgPluggableAuth_Config = [
    (e.g., whatever value you had used for `$wgPluggableAuth_ButtonLabel`).
  - You should be able to downgrade back to version 3.0.0 without any issues.
    (Of course, you will need to downgrade/reconfigure PluggableAuth, too!)
-
 ---
 
 ## Version 3.0.0
