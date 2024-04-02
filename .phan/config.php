@@ -363,4 +363,9 @@ return [
     'file_list' => [
         '.phan/SourceLinks/mediawiki-core-includes/Defines.php',
         ],
+
+    // Handles class_alias(...) calls, which are used by MW core for
+    // backwards-compatibility when classes are migrated out of global scope
+    // into namespaces.
+    'enable_class_alias_support' => true,
 ];
