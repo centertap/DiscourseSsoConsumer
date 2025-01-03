@@ -32,7 +32,7 @@ use Wikimedia\ScopedCallback;
 // TODO(maddog) Go through the whole extension and make sure DB access is
 //              principled and compatible with a load-balanced/clustered setup.
 //
-//              In particular, we need to ensure that DB_MASTER is used (and
+//              In particular, we need to ensure that DB_PRIMARY is used (and
 //              used consistently) when it is needed, and not used when not.
 //              In addition to the choices we make in this file, other things
 //              that access the DB (e.g., User::idFromName()), won't
@@ -113,7 +113,7 @@ class Db {
    * @throws MWException if the lock could not be acquired.
    */
   public static function acquireLockOnDiscourseId( int $discourse_id ) : void {
-    $dbw = wfGetDB( DB_MASTER );
+    $dbw = wfGetDB( DB_PRIMARY );
     $key = self::LOCK_KEY_PREFIX . (string)($discourse_id);
     $lock = $dbw->getScopedLockAndFlush( $key, __METHOD__, self::LOCK_TIMEOUT );
 
@@ -142,7 +142,7 @@ class Db {
    *          discourse_id, wiki_id, and wiki_username; otherwise, returns null.
    */
   public static function lookupDiscourseId( int $discourseId ) : ?object {
-    $dbr = wfGetDB( DB_MASTER );
+    $dbr = wfGetDB( DB_PRIMARY );
     $row = $dbr->selectRow(
       // tables
       [ 'dsc' => Schema::LINK_TABLE, 'u' => 'user' ],
@@ -181,7 +181,7 @@ class Db {
    * @return ?int the associated Discourse id if $wikiId is known, else null
    */
   public static function lookupDiscourseIdByWikiId( int $wikiId ) : ?int {
-    $dbr = wfGetDB( DB_MASTER );
+    $dbr = wfGetDB( DB_PRIMARY );
     $row = $dbr->selectRow(
       // tables
       [ 'dsc' => Schema::LINK_TABLE ],
@@ -225,7 +225,7 @@ class Db {
     // TODO(maddog) What happens (and what should happen) if the email address
     //              is used by multiple wiki users?  (e.g., selectRow() is
     //              here returning only one of potentially multiple rows.)
-    $dbr = wfGetDB( DB_MASTER );
+    $dbr = wfGetDB( DB_PRIMARY );
     $row = $dbr->selectRow(
       // tables
       [ 'u' => 'user' ],
@@ -267,7 +267,7 @@ class Db {
       Util::debug( 'Username is empty string, skipping.' );
       return null;
     }
-    $dbr = wfGetDB( DB_MASTER );
+    $dbr = wfGetDB( DB_PRIMARY );
     $row = $dbr->selectRow(
       // tables
       [ 'u' => 'user' ],
@@ -311,7 +311,7 @@ class Db {
     : void {
     Util::debug(
       "Linking discourse-id '{$discourseId}' to wiki-id '{$wikiId}'." );
-    $dbw = wfGetDB( DB_MASTER );
+    $dbw = wfGetDB( DB_PRIMARY );
     $dbw->upsert(
       // table
       Schema::LINK_TABLE,
@@ -374,7 +374,7 @@ class Db {
     $discourseId = $userRecord->id;
     $jsonUserBlob = Util::encodeObjectAsJson( $userRecord );
 
-    $dbw = wfGetDB( DB_MASTER );
+    $dbw = wfGetDB( DB_PRIMARY );
     $dbw->upsert(
       // table
       Schema::USER_TABLE,
@@ -408,7 +408,7 @@ class Db {
   public static function fetchUserRecord( int $discourseId ) : ?object {
     Util::debug( "Fetching user record for discourse-id '{$discourseId}'" );
 
-    $dbr = wfGetDB( DB_MASTER );
+    $dbr = wfGetDB( DB_PRIMARY );
     $row = $dbr->selectRow(
       // tables
       [ 'dsu' => Schema::USER_TABLE ],
