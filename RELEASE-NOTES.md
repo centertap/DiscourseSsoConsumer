@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version 5.0.1
+
+**Fixes**
+ - Fix the schema-v0008 SQL initialization files to identify the resulting
+   schema as version 8, not version 7!  This caused a failure when installing
+   the extension from new; the patch files for incremental upgrades from
+   earlier versions were already correct.  (Thanks to Github user @Stonley890
+   for reporting the problem.)
+---
+
 ## Version 5.0.0
 
 ***Upgrading***
