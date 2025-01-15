@@ -47,6 +47,5 @@ CREATE TABLE /*_*/discourse_sso_consumer_discourse_user (
 ) /*$wgDBTableOptions*/;
 
 
-
 INSERT INTO /*_*/discourse_sso_consumer_meta (m_key, m_value)
-  VALUES('schemaVersion', '7');
+  VALUES('schemaVersion', '8');
